@@ -451,6 +451,36 @@
       margin: 6px 0 14px;
     }
 
+    /* WORLD SCREEN — progress bar */
+    .world-progress-wrap {
+      width: 100%;
+      padding: 0 clamp(14px, 4vw, 28px) 10px;
+      flex-shrink: 0;
+    }
+
+    .world-progress-text {
+      font-size: clamp(0.82rem, 3vw, 1rem);
+      font-weight: 800;
+      opacity: 0.65;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .world-progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(39,48,67,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .world-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      transition: width 0.5s ease;
+    }
+
     /* WORLD SCREEN — back button */
     .world-back-button {
       border: none;
@@ -1525,6 +1555,12 @@
       <div id="worldTitle" class="world-title">My World</div>
       <div id="worldWordCount" class="world-word-count"></div>
     </div>
+    <div class="world-progress-wrap">
+      <div class="world-progress-text" id="worldProgressText"></div>
+      <div class="world-progress-bar">
+        <div class="world-progress-fill" id="worldProgressFill"></div>
+      </div>
+    </div>
     <div id="worldGrid" class="world-grid"></div>
     <div class="world-footer">
       <button id="keepPlayingButton" class="big-button" type="button">Keep playing!</button>
@@ -2528,7 +2564,22 @@ ON`;
       }
 
       const n = items.length;
-      worldWordCount.textContent = n === 0 ? "" : n + " word" + (n === 1 ? "" : "s");
+      worldWordCount.textContent = "";
+
+      // Progress bar
+      const total = theme ? themeTotal(theme) : 0;
+      const pct = total > 0 ? Math.min(100, Math.round((n / total) * 100)) : 0;
+      const progressText = document.getElementById("worldProgressText");
+      const progressFill = document.getElementById("worldProgressFill");
+      if (progressText && total > 0) {
+        progressText.textContent = n === 0
+          ? "Start spelling to fill your world!"
+          : n + " of " + total + " words found";
+        progressFill.style.width = pct + "%";
+        // Colour the bar to match the theme accent
+        if (theme) progressFill.style.background = theme.cardBg;
+      }
+
       worldScreen.classList.add("active");
     }
 
