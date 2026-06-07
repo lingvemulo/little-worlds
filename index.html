@@ -196,7 +196,7 @@
     .sound-toggle {
       position: fixed;
       top: 14px;
-      left: 14px;
+      right: 14px;
       z-index: 200;
       width: clamp(40px, 9vw, 50px);
       height: clamp(40px, 9vw, 50px);
@@ -221,6 +221,10 @@
     .sound-toggle.muted {
       background: rgba(220,220,220,0.75);
       opacity: 0.65;
+    }
+
+    .sound-toggle.below-gear {
+      top: calc(clamp(16px, 4vw, 28px) + clamp(42px, 10vw, 54px) + 18px);
     }
 
     /* WELCOME SCREEN */
@@ -2222,15 +2226,16 @@ ON`;
     function hideAll() {
       [welcomeScreen, mainScreen, settingsScreen, gameScreen, rewardScreen, phraseScreen, worldScreen, endScreen]
         .forEach(s => s.classList.remove("active"));
+      document.getElementById("soundToggle").classList.remove("below-gear");
     }
 
     function showMain() {
       hideAll();
-      // Update title with child name
       const name = childNameInput.value.trim();
       mainTitle.textContent = name ? name + "'s Worlds" : "Little Worlds";
       buildThemeGrid();
       mainScreen.classList.add("active");
+      document.getElementById("soundToggle").classList.add("below-gear");
     }
 
     function themeTotal(theme) {
