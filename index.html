@@ -458,6 +458,85 @@
       margin: 6px 0 14px;
     }
 
+    .settings-section-label {
+      font-size: clamp(0.78rem, 2.8vw, 0.9rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin: 18px 0 10px;
+    }
+
+    .theme-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .theme-toggle-row:last-child {
+      border-bottom: none;
+    }
+
+    .theme-toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(1rem, 3.5vw, 1.15rem);
+      font-weight: 700;
+    }
+
+    .theme-toggle-emoji {
+      font-size: clamp(1.3rem, 4.5vw, 1.6rem);
+      line-height: 1;
+    }
+
+    /* pill toggle switch */
+    .toggle-switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 26px;
+      background: #d1d5db;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .toggle-track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .toggle-switch input:checked + .toggle-track {
+      background: #22c55e;
+    }
+
+    .toggle-switch input:checked + .toggle-track::after {
+      transform: translateX(20px);
+    }
+
     /* WORLD SCREEN — progress bar */
     .world-progress-wrap {
       width: 100%;
@@ -1633,6 +1712,11 @@
         <p class="hint">One word per line — added to every theme.</p>
       </div>
 
+      <div class="settings-section-label">Worlds</div>
+      <div id="themeToggles">
+        <!-- Built by JS -->
+      </div>
+
       <button id="saveSettingsButton" class="big-button" type="button">Save</button>
       <div class="settings-notice">Worlds are saved on this device only. To save across all devices, create an account — coming soon!</div>
       <div class="home-tip">Best mobile play: Share → Add to Home Screen</div>
@@ -2081,10 +2165,14 @@ ON`;
 
     function saveSettings() {
       try {
+        const enabledThemes = THEMES
+          .filter(t => document.getElementById("themeToggle_" + t.id)?.checked !== false)
+          .map(t => t.id);
         localStorage.setItem(SETTINGS_KEY, JSON.stringify({
           childName: childNameInput.value,
           familyInput: familyInput.value,
           extraWords: wordInput.value,
+          enabledThemes,
         }));
       } catch (e) {}
     }
@@ -2097,8 +2185,46 @@ ON`;
         childNameInput.value = d.childName  || "";
         familyInput.value    = d.familyInput || "";
         wordInput.value      = d.extraWords  || "";
+        // Apply theme toggles (default all on if not saved)
+        const enabled = d.enabledThemes || THEMES.map(t => t.id);
+        THEMES.forEach(t => {
+          const el = document.getElementById("themeToggle_" + t.id);
+          if (el) el.checked = enabled.includes(t.id);
+        });
         return true;
       } catch (e) { return false; }
+    }
+
+    function buildThemeToggles() {
+      const container = document.getElementById("themeToggles");
+      container.innerHTML = "";
+      THEMES.forEach(t => {
+        const row = document.createElement("div");
+        row.className = "theme-toggle-row";
+        row.innerHTML = `
+          <div class="theme-toggle-label">
+            <span class="theme-toggle-emoji">${themeEmoji(t)}</span>
+            <span>${t.name}</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="themeToggle_${t.id}" checked />
+            <span class="toggle-track"></span>
+          </label>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function themeEmoji(t) {
+      const map = { vehicles: "🚗", magic: "🪄", farm: "🐄", animals: "🦊" };
+      return map[t.id] || "🌍";
+    }
+
+    function enabledThemes() {
+      return THEMES.filter(t => {
+        const el = document.getElementById("themeToggle_" + t.id);
+        return !el || el.checked;
+      });
     }
 
     function saveWorlds() {
@@ -2197,6 +2323,7 @@ ON`;
         welcomeThemes.appendChild(img);
       });
 
+      buildThemeToggles();
       const hasWelcomed = localStorage.getItem("littleWorlds_welcomed");
       const hasSavedSettings = loadSettings();
 
@@ -2244,7 +2371,7 @@ ON`;
 
     function buildThemeGrid() {
       themeGrid.innerHTML = "";
-      THEMES.forEach(theme => {
+      enabledThemes().forEach(theme => {
         const items = allWorlds[theme.id] || [];
         const collected = items.length;
         const total = themeTotal(theme);
