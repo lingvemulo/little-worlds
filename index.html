@@ -2359,7 +2359,8 @@ ON`;
     function showMain() {
       hideAll();
       const name = childNameInput.value.trim();
-      mainTitle.textContent = name ? name + "'s Worlds" : "Little Worlds";
+      const displayName = name ? name.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ") : "";
+      mainTitle.textContent = displayName ? displayName + "'s Worlds" : "Little Worlds";
       buildThemeGrid();
       mainScreen.classList.add("active");
       document.getElementById("mainSettingsButton").classList.add("visible");
