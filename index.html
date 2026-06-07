@@ -314,6 +314,22 @@
       letter-spacing: 0;
     }
 
+    .clear-world-button {
+      border: none;
+      background: none;
+      color: rgba(39,48,67,0.38);
+      font-size: clamp(0.75rem, 2.8vw, 0.88rem);
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+      text-decoration: underline;
+      padding: 4px 8px;
+    }
+
+    .clear-world-button:hover {
+      color: rgba(39,48,67,0.6);
+    }
+
     .hint-inline {
       font-weight: 700;
       font-size: clamp(0.8rem, 3vw, 0.95rem);
@@ -1114,6 +1130,8 @@
       <button id="startButton" class="big-button start-vehicle-button" type="button">Start the engines</button>
 
       <div class="home-tip">Tap Start to turn on sound. Best mobile play: Share → Add to Home Screen</div>
+
+      <button id="clearWorldButton" class="clear-world-button" type="button">Reset this child's world</button>
     </section>
   </main>
 
@@ -1356,6 +1374,53 @@ ON`;
     let unlockedItems = [];   // { word, reward } objects earned this session
     let worldOpenedFromReward = false;
 
+    /*
+      PERSISTENCE
+      -----------
+      Save and restore the world using localStorage.
+      Key: "littleWorlds_<childName>" so each child has their own world.
+    */
+    function saveKey() {
+      const name = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "") || "DEFAULT";
+      return "littleWorlds_" + name;
+    }
+
+    function saveWorld() {
+      try {
+        const data = {
+          unlockedItems,
+          nameWords: [...nameWords],
+          nameIconIndex,
+          savedAt: Date.now()
+        };
+        localStorage.setItem(saveKey(), JSON.stringify(data));
+      } catch (e) {
+        // localStorage unavailable (private browsing etc.) — game still works
+      }
+    }
+
+    function loadWorld() {
+      try {
+        const raw = localStorage.getItem(saveKey());
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        unlockedItems  = data.unlockedItems  || [];
+        nameWords      = new Set(data.nameWords || []);
+        nameIconIndex  = data.nameIconIndex   || 0;
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function clearWorld() {
+      try { localStorage.removeItem(saveKey()); } catch (e) {}
+      unlockedItems = [];
+      nameWords = new Set();
+      nameIconIndex = 0;
+      updateWorldCount();
+    }
+
     const setupScreen = document.getElementById("setupScreen");
     const gameScreen = document.getElementById("gameScreen");
     const wordInput = document.getElementById("wordInput");
@@ -1423,7 +1488,13 @@ ON`;
       currentWordIndex = 0;
       currentLetterIndex = 0;
       score = 0;
-      unlockedItems = [];
+
+      // Restore this child's saved world, or start fresh
+      const hadSavedWorld = loadWorld();
+      if (!hadSavedWorld) {
+        unlockedItems = [];
+      }
+
       updateScore();
       updateWorldCount();
       showGame();
@@ -1467,6 +1538,13 @@ ON`;
 
     skipButton.addEventListener("click", () => {
       goToNextWord();
+    });
+
+    document.getElementById("clearWorldButton").addEventListener("click", () => {
+      const name = childNameInput.value.trim() || "this child";
+      if (confirm("Reset " + name + "'s world? This cannot be undone.")) {
+        clearWorld();
+      }
     });
 
     settingsButton.addEventListener("click", () => {
@@ -1714,6 +1792,7 @@ ON`;
       if (nameWords.has(word.toUpperCase())) nameIconIndex++;
       unlockedItems.push({ word, reward });
       updateWorldCount();
+      saveWorld();
     }
 
     function updateWorldCount() {
