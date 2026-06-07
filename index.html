@@ -1845,6 +1845,13 @@ ON`;
       }
       if (words.length === 0) words = shuffle([...theme.words, ...SIGHT_WORDS]);
 
+      // Eliminate already-collected words — skip words the child has earned before
+      const collected = new Set((allWorlds[currentThemeId] || []).map(i => i.word));
+      const remaining = words.filter(w => !collected.has(w));
+
+      // If everything is collected, play them all again as a victory lap
+      words = remaining.length > 0 ? remaining : words;
+
       currentWordIndex = 0;
       currentLetterIndex = 0;
       score = 0;
