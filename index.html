@@ -192,40 +192,162 @@
     }
 
 
-    /* THEMED HOME SCREEN */
-    #setupScreen {
+    /* MAIN SCREEN */
+    #mainScreen.active {
+      justify-content: flex-start;
+      padding: 0;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.9) 0 4%, transparent 5%),
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,0.75) 0 3%, transparent 4%),
+        linear-gradient(135deg, #8ee7ff 0%, #ffe98a 40%, #ff9ed0 100%);
+    }
+
+    .main-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(16px, 4vw, 28px) clamp(16px, 4vw, 28px) 8px;
+      flex-shrink: 0;
+    }
+
+    .main-title {
+      font-size: clamp(1.8rem, 7vw, 3rem);
+      font-weight: 900;
+      margin: 0;
+      background: linear-gradient(135deg, var(--dark), #4b5568);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gear-button {
+      width: clamp(42px, 10vw, 54px);
+      height: clamp(42px, 10vw, 54px);
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.72);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      font-size: clamp(1.3rem, 4vw, 1.7rem);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--dark);
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .gear-button:active {
+      transform: rotate(60deg);
+    }
+
+    /* THEME GRID */
+    .theme-grid {
+      flex: 1;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(10px, 3vw, 18px);
+      padding: clamp(10px, 3vw, 18px);
+      align-content: start;
+    }
+
+    .theme-card {
+      border-radius: 28px;
+      border: 4px solid rgba(255,255,255,0.85);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+      padding: clamp(14px, 4vw, 24px) clamp(10px, 3vw, 18px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+      position: relative;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .theme-card:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+    }
+
+    .theme-card-img {
+      width: clamp(56px, 16vw, 88px);
+      height: clamp(56px, 16vw, 88px);
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+    }
+
+    .theme-card-name {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.22);
+      text-align: center;
+    }
+
+    .theme-card-count {
+      font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+      font-weight: 800;
+      color: rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.15);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+
+    /* SETTINGS SCREEN */
+    #settingsScreen.active {
+      justify-content: flex-start;
+      padding-top: max(14px, calc(50vh - 360px));
+      padding-bottom: 24px;
       background:
         radial-gradient(circle at 18% 18%, rgba(255,255,255,0.85) 0 5%, transparent 6%),
         radial-gradient(circle at 80% 12%, rgba(255,255,255,0.62) 0 4%, transparent 5%),
         linear-gradient(135deg, #80ddff 0%, #ffe06f 48%, #ff9ac9 100%);
-      position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
     }
 
-    #setupScreen::before {
-      content: "";
-      position: absolute;
-      left: -10%;
-      right: -10%;
-      bottom: 4.5%;
-      height: 96px;
-      background:
-        repeating-linear-gradient(90deg, transparent 0 38px, rgba(255,255,255,0.9) 38px 72px, transparent 72px 116px),
-        linear-gradient(#4b5568, #2f3747);
-      border-top: 8px solid rgba(255,255,255,0.72);
-      border-bottom: 8px solid rgba(39,48,67,0.22);
-      transform: rotate(-2deg);
-      opacity: 0.95;
-      pointer-events: none;
-    }
-
-    #setupScreen .card {
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,249,232,0.92));
+    .settings-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,249,232,0.92));
       border: 6px solid rgba(255,255,255,0.98);
       box-shadow: 0 18px 38px rgba(39,48,67,0.24);
-      z-index: 1;
+    }
+
+    .settings-title {
+      font-size: clamp(1.8rem, 7vw, 2.8rem);
+      margin: 6px 0 14px;
+    }
+
+    /* WORLD SCREEN — back button */
+    .world-back-button {
+      border: none;
+      background: rgba(255,255,255,0.65);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--dark);
+      flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .world-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: clamp(14px, 4vw, 24px) clamp(14px, 4vw, 24px) 8px;
+    }
+
+    .world-title {
+      flex: 1;
+      text-align: center;
+      /* override old centered style */
+      margin: 0;
     }
 
     .garage-badge {
@@ -236,42 +358,9 @@
       background: linear-gradient(135deg, #273043, #4b5568);
       color: white;
       font-size: clamp(1rem, 4vw, 1.25rem);
-      font-weight: 1000;
+      font-weight: 900;
       letter-spacing: 0.04em;
       box-shadow: 0 7px 0 rgba(0,0,0,0.18), 0 13px 18px rgba(0,0,0,0.16);
-    }
-
-    .home-title {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .home-vehicle-row {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      font-size: clamp(2.2rem, 10vw, 4.4rem);
-      line-height: 1;
-      margin: 4px 0 8px;
-      animation: garageDrive 2.2s ease-in-out infinite;
-    }
-
-    .home-title h1 {
-      font-size: clamp(2.65rem, 13vw, 5.4rem);
-      margin-bottom: 4px;
-      text-shadow:
-        0 3px 0 rgba(255,255,255,0.8),
-        0 7px 0 rgba(255,111,177,0.28);
-    }
-
-    .subtitle.home-subtitle {
-      font-weight: 900;
-      background: rgba(255,255,255,0.72);
-      border-radius: 20px;
-      padding: 10px 12px;
-      margin-bottom: 16px;
     }
 
     .word-entry-panel {
@@ -285,7 +374,7 @@
 
     .adult-label.vehicle-label {
       margin-top: 2px;
-      font-size: clamp(1.15rem, 4.6vw, 1.45rem);
+      font-size: clamp(1.05rem, 4vw, 1.25rem);
     }
 
     .name-input {
@@ -349,22 +438,6 @@
       text-transform: uppercase;
     }
 
-    .start-vehicle-button {
-      position: relative;
-      padding-left: 34px;
-      padding-right: 34px;
-      background: linear-gradient(135deg, #ffd85c, #ff9f43);
-      box-shadow: 0 9px 0 #c96a10, 0 16px 22px var(--soft-shadow);
-    }
-
-    .start-vehicle-button::before {
-      content: none;
-    }
-
-    .start-vehicle-button::after {
-      content: none;
-    }
-
     .home-tip {
       display: inline-block;
       margin-top: 11px;
@@ -375,33 +448,9 @@
       font-weight: 800;
     }
 
-    @keyframes garageDrive {
-      0%, 100% { transform: translateX(-3px); }
-      50% { transform: translateX(3px); }
-    }
-
     @media (max-height: 720px) {
-      #setupScreen::before {
-        height: 70px;
-        bottom: 2.5%;
-      }
-
-      .home-vehicle-row {
-        font-size: clamp(1.8rem, 8vw, 3.2rem);
-        margin-bottom: 4px;
-      }
-
-      .subtitle.home-subtitle {
-        padding: 7px 10px;
-        margin-bottom: 10px;
-      }
-
-      .word-entry-panel {
-        padding: 9px;
-      }
-
       textarea {
-        min-height: 96px;
+        min-height: 80px;
       }
     }
 
@@ -1211,21 +1260,24 @@
 </head>
 
 <body>
-  <!-- ADULT WORD ENTRY SCREEN -->
-  <main id="setupScreen" class="screen active">
-    <section class="card">
-      <div class="garage-badge">LITTLE WORLDS</div>
+  <!-- MAIN SCREEN (child-facing world picker) -->
+  <main id="mainScreen" class="screen active">
+    <div class="main-header">
+      <h1 id="mainTitle" class="main-title">Little Worlds</h1>
+      <button id="mainSettingsButton" class="gear-button" aria-label="Settings">&#9881;</button>
+    </div>
+    <div id="themeGrid" class="theme-grid">
+      <!-- Built by JS -->
+    </div>
+  </main>
 
-      <div class="home-title">
-        <h1>Little Worlds</h1>
-      </div>
-
-      <p class="subtitle home-subtitle">
-        Read words to build your world!
-      </p>
+  <!-- SETTINGS SCREEN (parent-facing) -->
+  <main id="settingsScreen" class="screen">
+    <section class="card settings-card">
+      <div class="garage-badge">SETTINGS</div>
+      <h1 class="settings-title">Little Worlds</h1>
 
       <div class="word-entry-panel">
-
         <label class="adult-label vehicle-label" for="childNameInput">Child's name</label>
         <input id="childNameInput" type="text" class="name-input" spellcheck="false" placeholder="e.g. Rayan" autocomplete="off" />
 
@@ -1234,15 +1286,12 @@
 
         <label class="adult-label vehicle-label" for="wordInput" style="margin-top:14px;">Extra words <span class="hint-inline">(optional)</span></label>
         <textarea id="wordInput" spellcheck="false"></textarea>
-        <p class="hint">One word per line — or leave blank to use the built-in list.</p>
-
+        <p class="hint">One word per line — added to every theme.</p>
       </div>
 
-      <button id="startButton" class="big-button start-vehicle-button" type="button">Start the engines</button>
-
-      <div class="home-tip">Tap Start to turn on sound. Best mobile play: Share → Add to Home Screen</div>
-
-      <button id="clearWorldButton" class="clear-world-button" type="button">Reset this child's world</button>
+      <button id="saveSettingsButton" class="big-button" type="button">Save</button>
+      <div class="home-tip">Best mobile play: Share → Add to Home Screen</div>
+      <button id="clearWorldButton" class="clear-world-button" type="button">Reset all worlds</button>
     </section>
   </main>
 
@@ -1268,7 +1317,7 @@
       <button id="repeatButton" class="small-button" type="button">Say it again</button>
       <button id="skipButton" class="small-button" type="button">Next word</button>
       <button id="myWorldButton" class="small-button world-button" type="button">My World <span id="worldCount"></span></button>
-      <button id="settingsButton" class="small-button" type="button">Change words</button>
+      <button id="homeButton" class="small-button" type="button">Home</button>
     </nav>
   </main>
 
@@ -1294,7 +1343,8 @@
   <!-- WORLD SCREEN -->
   <main id="worldScreen" class="screen">
     <div class="world-header">
-      <div class="world-title">My World</div>
+      <button id="worldBackButton" class="world-back-button" aria-label="Back">&#8592;</button>
+      <div id="worldTitle" class="world-title">My World</div>
       <div id="worldWordCount" class="world-word-count"></div>
     </div>
     <div id="worldGrid" class="world-grid"></div>
@@ -1314,7 +1364,7 @@
       <div id="endSummary" class="end-summary"></div>
       <div id="endGrid" class="end-grid"></div>
       <button id="playAgainEndButton" class="big-button end-play-button" type="button">Play again!</button>
-      <button id="endChangeWordsButton" class="big-button secondary-button" type="button">Change words</button>
+      <button id="endChooseWorldButton" class="big-button secondary-button" type="button">Choose a world</button>
     </div>
   </main>
 
@@ -1376,11 +1426,34 @@
       // Vehicles
       CAR:   { hex: "1F697", label: "Car",   category: "vehicles" },
       BUS:   { hex: "1F68C", label: "Bus",   category: "vehicles" },
+      VAN:   { hex: "1F690", label: "Van",   category: "vehicles" },
+      JET:   { hex: "2708",  label: "Jet",   category: "vehicles" },
+      CAB:   { hex: "1F695", label: "Cab",   category: "vehicles" },
+      JEEP:  { hex: "1F699", label: "Jeep",  category: "vehicles" },
+      TRAM:  { hex: "1F68A", label: "Tram",  category: "vehicles" },
+      SHIP:  { hex: "1F6A2", label: "Ship",  category: "vehicles" },
       BOAT:  { hex: "26F5",  label: "Boat",  category: "vehicles" },
       BIKE:  { hex: "1F6B2", label: "Bike",  category: "vehicles" },
       TRUCK: { hex: "1F69A", label: "Truck", category: "vehicles" },
       TRAIN: { hex: "1F682", label: "Train", category: "vehicles" },
       PLANE: { hex: "2708",  label: "Plane", category: "vehicles" },
+      // Magic
+      WAND:  { hex: "1FA84", label: "Wand",  category: "magic" },
+      WING:  { hex: "1FAB6", label: "Wing",  category: "magic" },
+      GEM:   { hex: "1F48E", label: "Gem",   category: "magic" },
+      ORB:   { hex: "1F52E", label: "Orb",   category: "magic" },
+      GLOW:  { hex: "2728",  label: "Glow",  category: "magic" },
+      HALO:  { hex: "1F607", label: "Halo",  category: "magic" },
+      // Farm extras
+      HAY:   { hex: "1F33E", label: "Hay",   category: "farm" },
+      GOAT:  { hex: "1F410", label: "Goat",  category: "farm" },
+      LAMB:  { hex: "1F411", label: "Lamb",  category: "farm" },
+      // Animals extras
+      FOX:   { hex: "1F98A", label: "Fox",   category: "animals" },
+      OWL:   { hex: "1F989", label: "Owl",   category: "animals" },
+      ANT:   { hex: "1F41C", label: "Ant",   category: "animals" },
+      DEER:  { hex: "1F98C", label: "Deer",  category: "animals" },
+      WOLF:  { hex: "1F43A", label: "Wolf",  category: "animals" },
       // Objects
       BALL:  { hex: "26BD",  label: "Ball",  category: "objects" },
       BOOK:  { hex: "1F4DA", label: "Book",  category: "objects" },
@@ -1404,7 +1477,62 @@
       SEE:   { hex: "1F441", label: "See",   category: "sightwords" },
       THE:   { hex: "1F31F", label: "The",   category: "sightwords" },
       ME:    { hex: "1F9D1", label: "Me",    category: "sightwords" },
+      UP:    { hex: "1F388", label: "Up",    category: "sightwords" },
+      IS:    { hex: "1F4AC", label: "Is",    category: "sightwords" },
+      AT:    { hex: "1F4CD", label: "At",    category: "sightwords" },
+      DO:    { hex: "1F3AF", label: "Do",    category: "sightwords" },
+      WE:    { hex: "1F91D", label: "We",    category: "sightwords" },
     };
+
+    /*
+      SIGHT WORDS — added to every theme
+    */
+    const SIGHT_WORDS = ["ME", "GO", "SEE", "IN", "ON", "MY", "THE", "IT", "UP", "IS"];
+
+    /*
+      THEMES
+      ------
+      Each theme has its own word list, colors, and hero image.
+      Sight words are added automatically to every theme's word list.
+    */
+    const THEMES = [
+      {
+        id: "vehicles",
+        name: "Vehicles",
+        heroHex: "1F697",
+        words: ["CAR", "BUS", "VAN", "JET", "CAB", "BIKE", "JEEP", "TRAM", "SHIP"],
+        cardBg: "linear-gradient(135deg, #3a7bd5 0%, #63b3ed 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(58,123,213,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(99,179,237,0.35) 0%, transparent 50%), linear-gradient(160deg, #e8f4ff 0%, #dbeafe 100%)",
+        accent: "#ff9f43",
+      },
+      {
+        id: "magic",
+        name: "Magic",
+        heroHex: "1FA84",
+        words: ["STAR", "MOON", "WAND", "WING", "BELL", "GEM", "ORB", "GLOW", "ROSE"],
+        cardBg: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(168,85,247,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.35) 0%, transparent 50%), linear-gradient(160deg, #fdf4ff 0%, #fce7f3 100%)",
+        accent: "#ffd85c",
+      },
+      {
+        id: "farm",
+        name: "Farm",
+        heroHex: "1F42E",
+        words: ["COW", "PIG", "HEN", "DOG", "CAT", "EGG", "HAY", "DUCK", "GOAT", "LAMB"],
+        cardBg: "linear-gradient(135deg, #22c55e 0%, #eab308 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(34,197,94,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.35) 0%, transparent 50%), linear-gradient(160deg, #f0fdf4 0%, #fefce8 100%)",
+        accent: "#ff9f43",
+      },
+      {
+        id: "animals",
+        name: "Animals",
+        heroHex: "1F98A",
+        words: ["FOX", "OWL", "BEE", "ANT", "FROG", "BEAR", "LION", "DEER", "WOLF", "BIRD"],
+        cardBg: "linear-gradient(135deg, #f97316 0%, #eab308 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(249,115,22,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.35) 0%, transparent 50%), linear-gradient(160deg, #fff7ed 0%, #fefce8 100%)",
+        accent: "#8af27b",
+      },
+    ];
 
     // Neutral person icons — different skin tones, non-gendered (OpenMoji 🧑)
     const PERSON_ICONS = [
@@ -1497,149 +1625,248 @@ ON`;
     let currentWordIndex = 0;
     let currentLetterIndex = 0;
     let score = 0;
-    let unlockedItems = [];   // { word, reward } objects earned this session
-    let worldOpenedFromReward = false;
+    let currentThemeId = null;      // active theme id
+    let allWorlds = {};             // { vehicles: [...], magic: [...], ... }
+    let worldContext = "main";      // "main" | "game" | "reward"
     let sessionComplete = false;
+    let sessionWordCount = 0;
 
     /*
       PERSISTENCE
       -----------
-      Save and restore the world using localStorage.
-      Key: "littleWorlds_<childName>" so each child has their own world.
+      Settings: child name, family, extra words — shared across themes.
+      Worlds: per-child, per-theme item collections.
     */
-    function saveKey() {
+    const SETTINGS_KEY = "littleWorlds_settings";
+
+    function childKey() {
       const name = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "") || "DEFAULT";
-      return "littleWorlds_" + name;
+      return "littleWorlds_worlds_" + name;
     }
 
-    function saveWorld() {
+    function saveSettings() {
       try {
-        const data = {
-          unlockedItems,
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+          childName: childNameInput.value,
+          familyInput: familyInput.value,
+          extraWords: wordInput.value,
+        }));
+      } catch (e) {}
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return false;
+        const d = JSON.parse(raw);
+        childNameInput.value = d.childName  || "";
+        familyInput.value    = d.familyInput || "";
+        wordInput.value      = d.extraWords  || "";
+        return true;
+      } catch (e) { return false; }
+    }
+
+    function saveWorlds() {
+      try {
+        localStorage.setItem(childKey(), JSON.stringify({
+          worlds: allWorlds,
           nameWords: [...nameWords],
           nameIconIndex,
-          savedAt: Date.now()
-        };
-        localStorage.setItem(saveKey(), JSON.stringify(data));
-      } catch (e) {
-        // localStorage unavailable (private browsing etc.) — game still works
-      }
+        }));
+      } catch (e) {}
     }
 
-    function loadWorld() {
+    function loadWorlds() {
       try {
-        const raw = localStorage.getItem(saveKey());
-        if (!raw) return false;
-        const data = JSON.parse(raw);
-        unlockedItems  = data.unlockedItems  || [];
-        nameWords      = new Set(data.nameWords || []);
-        nameIconIndex  = data.nameIconIndex   || 0;
-        return true;
-      } catch (e) {
-        return false;
-      }
+        const raw = localStorage.getItem(childKey());
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        allWorlds     = d.worlds        || {};
+        nameWords     = new Set(d.nameWords || []);
+        nameIconIndex = d.nameIconIndex  || 0;
+      } catch (e) {}
     }
 
-    function clearWorld() {
-      try { localStorage.removeItem(saveKey()); } catch (e) {}
-      unlockedItems = [];
+    function clearAllWorlds() {
+      try { localStorage.removeItem(childKey()); } catch (e) {}
+      allWorlds = {};
       nameWords = new Set();
       nameIconIndex = 0;
-      updateWorldCount();
     }
 
-    const setupScreen = document.getElementById("setupScreen");
-    const gameScreen = document.getElementById("gameScreen");
-    const wordInput = document.getElementById("wordInput");
-    const childNameInput = document.getElementById("childNameInput");
-    const familyInput = document.getElementById("familyInput");
-    const startButton = document.getElementById("startButton");
-    const targetWord = document.getElementById("targetWord");
-    const bigTargetLetter = document.getElementById("bigTargetLetter");
-    const playArea = document.getElementById("playArea");
-    const message = document.getElementById("message");
-    const scoreDisplay = document.getElementById("score");
-    const garageVehicles = document.getElementById("garageVehicles");
-    const wordNumber = document.getElementById("wordNumber");
-    const wordTotal = document.getElementById("wordTotal");
-    const rewardScreen = document.getElementById("rewardScreen");
-    const rewardImg = document.getElementById("rewardImg");
-    const rewardLetters = document.getElementById("rewardLetters");
-    const addToWorldButton = document.getElementById("addToWorldButton");
-    const rewardPlayAgainButton = document.getElementById("rewardPlayAgainButton");
-    const repeatButton = document.getElementById("repeatButton");
-    const skipButton = document.getElementById("skipButton");
-    const myWorldButton = document.getElementById("myWorldButton");
-    const worldCount = document.getElementById("worldCount");
-    const settingsButton = document.getElementById("settingsButton");
-    const worldScreen = document.getElementById("worldScreen");
-    const worldGrid = document.getElementById("worldGrid");
-    const worldWordCount = document.getElementById("worldWordCount");
-    const keepPlayingButton = document.getElementById("keepPlayingButton");
-    const endScreen = document.getElementById("endScreen");
-    const endGrid = document.getElementById("endGrid");
-    const endSummary = document.getElementById("endSummary");
-    const playAgainEndButton = document.getElementById("playAgainEndButton");
-    const endChangeWordsButton = document.getElementById("endChangeWordsButton");
+    function currentWorldItems() {
+      return allWorlds[currentThemeId] || [];
+    }
 
     /*
-      START GAME
+      DOM REFERENCES
     */
-    startButton.addEventListener("click", () => {
+    const mainScreen          = document.getElementById("mainScreen");
+    const mainTitle           = document.getElementById("mainTitle");
+    const themeGrid           = document.getElementById("themeGrid");
+    const mainSettingsButton  = document.getElementById("mainSettingsButton");
+    const settingsScreen      = document.getElementById("settingsScreen");
+    const saveSettingsButton  = document.getElementById("saveSettingsButton");
+    const gameScreen          = document.getElementById("gameScreen");
+    const wordInput           = document.getElementById("wordInput");
+    const childNameInput      = document.getElementById("childNameInput");
+    const familyInput         = document.getElementById("familyInput");
+    const targetWord          = document.getElementById("targetWord");
+    const bigTargetLetter     = document.getElementById("bigTargetLetter");
+    const playArea            = document.getElementById("playArea");
+    const message             = document.getElementById("message");
+    const scoreDisplay        = document.getElementById("score");
+    const wordNumber          = document.getElementById("wordNumber");
+    const wordTotal           = document.getElementById("wordTotal");
+    const rewardScreen        = document.getElementById("rewardScreen");
+    const rewardImg           = document.getElementById("rewardImg");
+    const rewardLetters       = document.getElementById("rewardLetters");
+    const addToWorldButton    = document.getElementById("addToWorldButton");
+    const rewardPlayAgainButton = document.getElementById("rewardPlayAgainButton");
+    const repeatButton        = document.getElementById("repeatButton");
+    const skipButton          = document.getElementById("skipButton");
+    const myWorldButton       = document.getElementById("myWorldButton");
+    const worldCount          = document.getElementById("worldCount");
+    const homeButton          = document.getElementById("homeButton");
+    const worldScreen         = document.getElementById("worldScreen");
+    const worldTitle          = document.getElementById("worldTitle");
+    const worldGrid           = document.getElementById("worldGrid");
+    const worldWordCount      = document.getElementById("worldWordCount");
+    const worldBackButton     = document.getElementById("worldBackButton");
+    const keepPlayingButton   = document.getElementById("keepPlayingButton");
+    const endScreen           = document.getElementById("endScreen");
+    const endGrid             = document.getElementById("endGrid");
+    const endSummary          = document.getElementById("endSummary");
+    const playAgainEndButton  = document.getElementById("playAgainEndButton");
+    const endChooseWorldButton = document.getElementById("endChooseWorldButton");
+
+    /*
+      APP INIT — runs on page load
+    */
+    (function init() {
+      const hasSavedSettings = loadSettings();
+      if (hasSavedSettings && childNameInput.value.trim()) {
+        loadWorlds();
+        showMain();
+      } else {
+        // First visit — show settings
+        settingsScreen.classList.add("active");
+        mainScreen.classList.remove("active");
+      }
+    })();
+
+    /*
+      NAVIGATION HELPERS
+    */
+    function hideAll() {
+      [mainScreen, settingsScreen, gameScreen, rewardScreen, worldScreen, endScreen]
+        .forEach(s => s.classList.remove("active"));
+    }
+
+    function showMain() {
+      hideAll();
+      // Update title with child name
+      const name = childNameInput.value.trim();
+      mainTitle.textContent = name ? name + "'s Worlds" : "Little Worlds";
+      buildThemeGrid();
+      mainScreen.classList.add("active");
+    }
+
+    function buildThemeGrid() {
+      themeGrid.innerHTML = "";
+      THEMES.forEach(theme => {
+        const items = allWorlds[theme.id] || [];
+        const card = document.createElement("div");
+        card.className = "theme-card";
+        card.style.background = theme.cardBg;
+        card.innerHTML = `
+          <img class="theme-card-img" src="${OPENMOJI_BASE}${theme.heroHex}.svg" alt="${theme.name}">
+          <div class="theme-card-name">${theme.name}</div>
+          <div class="theme-card-count">${items.length === 0 ? "Start spelling!" : items.length + " word" + (items.length === 1 ? "" : "s")}</div>
+        `;
+        card.addEventListener("click", () => {
+          enableSpeech();
+          currentThemeId = theme.id;
+          showWorld({ context: "main" });
+        });
+        themeGrid.appendChild(card);
+      });
+    }
+
+    /*
+      SETTINGS
+    */
+    mainSettingsButton.addEventListener("click", () => {
+      hideAll();
+      settingsScreen.classList.add("active");
+    });
+
+    saveSettingsButton.addEventListener("click", () => {
       enableSpeech();
+      saveSettings();
+      loadWorlds();
+      showMain();
+    });
 
-      // 1. Child's name — always first, never shuffled
+    document.getElementById("clearWorldButton").addEventListener("click", () => {
+      const name = childNameInput.value.trim() || "this child";
+      if (confirm("Reset all of " + name + "'s worlds? This cannot be undone.")) {
+        clearAllWorlds();
+        saveWorlds();
+        buildThemeGrid();
+      }
+    });
+
+    /*
+      START PLAYING A THEME (from World Screen "Play!" button)
+    */
+    function startTheme() {
+      const theme = THEMES.find(t => t.id === currentThemeId);
+
+      // Build name words from settings
       const childName = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "");
-
-      // 2. Family names — in the order entered, never shuffled
       const familyNames = familyInput.value
         .split(/[,\n]+/)
         .map(w => w.trim().toUpperCase().replace(/[^A-Z]/g, ""))
         .filter(Boolean);
 
-      // 3. Extra words from textarea, or fall back to default list
-      const extraSource = wordInput.value.trim() || DEFAULT_WORDS;
-      const extraWords = shuffle(cleanWords(extraSource));
-
-      // Register name words so getReward() knows to use person icons
+      // Only reset nameIconIndex on first play ever
+      if (nameWords.size === 0) nameIconIndex = 0;
       nameWords = new Set([childName, ...familyNames].filter(Boolean));
-      nameIconIndex = 0;
 
-      // Build final list: name → family → shuffled rest (deduplicate)
+      // Build word list: names → theme words + sight words (shuffled) → extra words
+      const themeWords = shuffle([...theme.words, ...SIGHT_WORDS]);
+      const extraWords = cleanWords(wordInput.value.trim());
+
       const seen = new Set();
       words = [];
-      for (const w of [childName, ...familyNames, ...extraWords]) {
-        if (w && !seen.has(w)) {
-          seen.add(w);
-          words.push(w);
-        }
+      for (const w of [childName, ...familyNames, ...themeWords, ...extraWords]) {
+        if (w && !seen.has(w)) { seen.add(w); words.push(w); }
       }
-
-      if (words.length === 0) words = shuffle(cleanWords(DEFAULT_WORDS));
+      if (words.length === 0) words = shuffle([...theme.words, ...SIGHT_WORDS]);
 
       currentWordIndex = 0;
       currentLetterIndex = 0;
       score = 0;
       sessionComplete = false;
-
-      // Restore this child's saved world, or start fresh
-      const hadSavedWorld = loadWorld();
-      if (!hadSavedWorld) {
-        unlockedItems = [];
-      }
+      sessionWordCount = 0;
 
       updateScore();
       updateWorldCount();
-      showGame();
+      hideAll();
+      gameScreen.classList.add("active");
+      wordTotal.textContent = words.length;
       loadWord();
       speakOrBeep("start");
-      // Small delay lets speech synthesis wake up before the first prompt
       setTimeout(speakTargetLetter, 600);
-    });
+    }
 
+    /*
+      IN-GAME BUTTONS
+    */
     addToWorldButton.addEventListener("click", () => {
       rewardScreen.classList.remove("active");
-      showWorld({ fromReward: true });
+      showWorld({ context: "reward" });
     });
 
     rewardPlayAgainButton.addEventListener("click", () => {
@@ -1650,42 +1877,37 @@ ON`;
 
     myWorldButton.addEventListener("click", () => {
       gameScreen.classList.remove("active");
-      showWorld({ fromReward: false });
+      showWorld({ context: "game" });
+    });
+
+    homeButton.addEventListener("click", () => {
+      hideAll();
+      showMain();
     });
 
     keepPlayingButton.addEventListener("click", () => {
       worldScreen.classList.remove("active");
-      if (worldOpenedFromReward) {
-        worldOpenedFromReward = false;
+      if (worldContext === "main") {
+        startTheme();
+      } else if (worldContext === "reward") {
         if (sessionComplete) {
           showEndScreen();
         } else {
           goToNextWord();
         }
       } else {
+        // mid-game browse — return to game
         gameScreen.classList.add("active");
       }
     });
 
-    playAgainEndButton.addEventListener("click", () => {
-      endScreen.classList.remove("active");
-      sessionComplete = false;
-      // Reshuffle and restart with the same word set
-      words = shuffle(words);
-      currentWordIndex = 0;
-      currentLetterIndex = 0;
-      score = 0;
-      updateScore();
-      showGame();
-      loadWord();
-      speakOrBeep("start");
-      setTimeout(speakTargetLetter, 400);
-    });
-
-    endChangeWordsButton.addEventListener("click", () => {
-      endScreen.classList.remove("active");
-      sessionComplete = false;
-      setupScreen.classList.add("active");
+    worldBackButton.addEventListener("click", () => {
+      worldScreen.classList.remove("active");
+      if (worldContext === "main") {
+        showMain();
+      } else {
+        gameScreen.classList.add("active");
+      }
     });
 
     repeatButton.addEventListener("click", () => {
@@ -1698,20 +1920,27 @@ ON`;
       goToNextWord();
     });
 
-    document.getElementById("clearWorldButton").addEventListener("click", () => {
-      const name = childNameInput.value.trim() || "this child";
-      if (confirm("Reset " + name + "'s world? This cannot be undone.")) {
-        clearWorld();
-      }
-    });
-
-    settingsButton.addEventListener("click", () => {
-      gameScreen.classList.remove("active");
-      rewardScreen.classList.remove("active");
-      worldScreen.classList.remove("active");
+    playAgainEndButton.addEventListener("click", () => {
       endScreen.classList.remove("active");
       sessionComplete = false;
-      setupScreen.classList.add("active");
+      words = shuffle(words);
+      currentWordIndex = 0;
+      currentLetterIndex = 0;
+      score = 0;
+      sessionWordCount = 0;
+      updateScore();
+      hideAll();
+      gameScreen.classList.add("active");
+      wordTotal.textContent = words.length;
+      loadWord();
+      speakOrBeep("start");
+      setTimeout(speakTargetLetter, 400);
+    });
+
+    endChooseWorldButton.addEventListener("click", () => {
+      endScreen.classList.remove("active");
+      sessionComplete = false;
+      showMain();
     });
 
     /*
@@ -1728,7 +1957,7 @@ ON`;
     }
 
     function showGame() {
-      setupScreen.classList.remove("active");
+      hideAll();
       gameScreen.classList.add("active");
       wordTotal.textContent = words.length;
     }
@@ -1951,22 +2180,26 @@ ON`;
     function unlockItem(word) {
       const reward = getReward(word);
       if (nameWords.has(word.toUpperCase())) nameIconIndex++;
-      unlockedItems.push({ word, reward });
+      if (!allWorlds[currentThemeId]) allWorlds[currentThemeId] = [];
+      // Only add if not already collected
+      if (!allWorlds[currentThemeId].find(i => i.word === word)) {
+        allWorlds[currentThemeId].push({ word, reward });
+      }
+      sessionWordCount++;
       updateWorldCount();
-      saveWorld();
+      saveWorlds();
     }
 
     function showEndScreen() {
       makeConfetti();
       speakOrBeep("win");
 
-      const sessionWords = words.length;
-      endSummary.textContent = sessionWords === 1
+      endSummary.textContent = sessionWordCount === 1
         ? "You spelled 1 word this time!"
-        : "You spelled " + sessionWords + " words!";
+        : "You spelled " + sessionWordCount + " words!";
 
       endGrid.innerHTML = "";
-      unlockedItems.forEach(({ word, reward }, i) => {
+      currentWorldItems().forEach(({ word, reward }, i) => {
         const item = document.createElement("div");
         item.className = "end-grid-item";
         item.style.animationDelay = (i * 0.04).toFixed(2) + "s";
@@ -1989,23 +2222,43 @@ ON`;
     }
 
     function updateWorldCount() {
-      const n = unlockedItems.length;
+      const n = currentWorldItems().length;
       if (worldCount) worldCount.textContent = n > 0 ? n : "";
     }
 
-    function showWorld({ fromReward = false } = {}) {
-      worldOpenedFromReward = fromReward;
+    function showWorld({ context = "game" } = {}) {
+      worldContext = context;
+      const theme = THEMES.find(t => t.id === currentThemeId);
+      const items = currentWorldItems();
+
+      // Theme the world screen background
+      worldScreen.style.background = theme ? theme.worldBg : "";
+
+      // Title
+      if (worldTitle) worldTitle.textContent = theme ? theme.name : "My World";
+
+      // Button label depends on context
+      if (context === "main") {
+        keepPlayingButton.textContent = "Play " + (theme ? theme.name : "") + "!";
+        worldBackButton.style.display = "grid";
+      } else {
+        keepPlayingButton.textContent = "Keep playing!";
+        worldBackButton.style.display = "none";
+      }
       // Rebuild the grid
       worldGrid.innerHTML = "";
+      const isFromReward = context === "reward";
 
-      if (unlockedItems.length === 0) {
+      if (items.length === 0) {
         const empty = document.createElement("div");
         empty.className = "world-empty";
-        empty.textContent = "Finish a word to add it to your world!";
+        empty.textContent = context === "main"
+          ? "No words yet — tap Play to start!"
+          : "Finish a word to add it to your world!";
         worldGrid.appendChild(empty);
       } else {
-        unlockedItems.forEach(({ word, reward }, i) => {
-          const isNewest = fromReward && i === unlockedItems.length - 1;
+        items.forEach(({ word, reward }, i) => {
+          const isNewest = isFromReward && i === items.length - 1;
           const item = document.createElement("div");
           item.className = "world-item" + (isNewest ? " newest" : "");
           item.style.animationDelay = isNewest ? "0s" : (i * 0.04).toFixed(2) + "s";
@@ -2021,18 +2274,11 @@ ON`;
 
           item.appendChild(img);
           item.appendChild(label);
-
-          // Tap to hear the word
-          item.addEventListener("click", () => {
-            speakOrBeep("correct");
-            speak(word);
-          });
-
+          item.addEventListener("click", () => { speakOrBeep("correct"); speak(word); });
           worldGrid.appendChild(item);
         });
 
-        // Scroll newest item into view
-        if (fromReward) {
+        if (isFromReward) {
           setTimeout(() => {
             const newest = worldGrid.querySelector(".newest");
             if (newest) newest.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -2040,10 +2286,8 @@ ON`;
         }
       }
 
-      const n = unlockedItems.length;
-      worldWordCount.textContent = n === 0 ? "" :
-        n === 1 ? "1 word spelled!" : n + " words spelled!";
-
+      const n = items.length;
+      worldWordCount.textContent = n === 0 ? "" : n + " word" + (n === 1 ? "" : "s");
       worldScreen.classList.add("active");
     }
 
