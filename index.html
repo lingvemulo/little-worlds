@@ -438,6 +438,20 @@
       text-transform: uppercase;
     }
 
+    .settings-notice {
+      margin: 14px auto 0;
+      max-width: 580px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: rgba(107, 220, 255, 0.18);
+      border: 2px solid rgba(107, 220, 255, 0.35);
+      font-size: clamp(0.8rem, 3vw, 0.95rem);
+      font-weight: 800;
+      color: var(--dark);
+      opacity: 0.82;
+      text-align: center;
+    }
+
     .home-tip {
       display: inline-block;
       margin-top: 11px;
@@ -1290,6 +1304,7 @@
       </div>
 
       <button id="saveSettingsButton" class="big-button" type="button">Save</button>
+      <div class="settings-notice">Worlds are saved on this device only. To save across all devices, create an account — coming soon!</div>
       <div class="home-tip">Best mobile play: Share → Add to Home Screen</div>
       <button id="clearWorldButton" class="clear-world-button" type="button">Reset all worlds</button>
     </section>
