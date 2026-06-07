@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Little Worlds" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#8ee7ff" />
+  <title>Little Worlds</title>
+
+  <style>
+    /*
+      LETTER POP NAME GAME — MOBILE-FIRST VERSION 2.1
+      ------------------------------------------------
+      A simple preschool letter-recognition game.
+
+      Designed first for phones and tablets:
+      - Big target letter
+      - Big tap areas
+      - Minimal reading
+      - No scary wrong answers
+      - Confetti for each correct letter
+    */
+
+    :root {
+      --pink: #ff6fb1;
+      --yellow: #ffd85c;
+      --blue: #6bdcff;
+      --green: #8af27b;
+      --purple: #b88cff;
+      --orange: #ff9f43;
+      --dark: #273043;
+      --cream: #fff9e8;
+      --white: #ffffff;
+      --soft-shadow: rgba(39, 48, 67, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.9) 0 4%, transparent 5%),
+        radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.75) 0 3%, transparent 4%),
+        radial-gradient(circle at 20% 85%, rgba(255, 255, 255, 0.8) 0 3%, transparent 4%),
+        linear-gradient(135deg, #8ee7ff 0%, #ffe98a 40%, #ff9ed0 100%);
+      color: var(--dark);
+      touch-action: manipulation;
+      overscroll-behavior: none;
+    }
+
+    button, input, textarea {
+      font-family: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Fixed viewport height so the screen itself scrolls */
+      height: 100vh;
+      height: 100dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px;
+    }
+
+    /* Setup screen: center card when there's room, scroll when there isn't */
+    #setupScreen.active {
+      justify-content: safe center;
+      /* Fallback for browsers that don't support safe */
+      justify-content: flex-start;
+      padding-top: max(14px, calc(50vh - 340px));
+      padding-bottom: 24px;
+    }
+
+    .card {
+      width: min(900px, 96vw);
+      background: rgba(255, 255, 255, 0.9);
+      border: 5px solid var(--white);
+      border-radius: 30px;
+      box-shadow: 0 14px 34px var(--soft-shadow);
+      padding: clamp(18px, 5vw, 38px);
+      text-align: center;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.5rem, 13vw, 5rem);
+      line-height: 1;
+    }
+
+    .subtitle {
+      font-size: clamp(1.05rem, 4.8vw, 1.5rem);
+      margin: 0 auto 20px;
+      max-width: 680px;
+    }
+
+    .adult-label {
+      display: block;
+      font-weight: 900;
+      font-size: clamp(1.15rem, 4.5vw, 1.4rem);
+      margin: 18px 0 10px;
+    }
+
+    textarea {
+      width: min(650px, 100%);
+      min-height: 120px;
+      resize: vertical;
+      border: 4px solid var(--purple);
+      border-radius: 22px;
+      padding: 16px;
+      font-size: clamp(1.25rem, 5.5vw, 1.55rem);
+      background: #fffef8;
+      color: var(--dark);
+      outline: none;
+      text-align: center;
+    }
+
+    textarea:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 6px rgba(255, 111, 177, 0.25);
+    }
+
+    .hint {
+      font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+      margin-top: 10px;
+      opacity: 0.78;
+    }
+
+    .big-button {
+      border: none;
+      border-radius: 999px;
+      padding: 18px 28px;
+      margin: 16px 6px 0;
+      font-size: clamp(1.3rem, 6vw, 2rem);
+      font-weight: 1000;
+      color: var(--dark);
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+      box-shadow: 0 9px 0 #d66d15, 0 16px 22px var(--soft-shadow);
+      cursor: pointer;
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      min-height: 64px;
+    }
+
+    .big-button:active {
+      transform: translateY(7px);
+      box-shadow: 0 2px 0 #d66d15, 0 8px 14px var(--soft-shadow);
+    }
+
+    .secondary-button {
+      background: linear-gradient(135deg, #ffffff, #dff9ff);
+      box-shadow: 0 8px 0 #64bad0, 0 16px 20px var(--soft-shadow);
+      font-size: clamp(1.1rem, 4.5vw, 1.45rem);
+    }
+
+    .secondary-button:active {
+      box-shadow: 0 3px 0 #64bad0, 0 9px 15px var(--soft-shadow);
+    }
+
+
+    /* THEMED HOME SCREEN */
+    #setupScreen {
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,0.85) 0 5%, transparent 6%),
+        radial-gradient(circle at 80% 12%, rgba(255,255,255,0.62) 0 4%, transparent 5%),
+        linear-gradient(135deg, #80ddff 0%, #ffe06f 48%, #ff9ac9 100%);
+      position: relative;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    #setupScreen::before {
+      content: "";
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      bottom: 4.5%;
+      height: 96px;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 38px, rgba(255,255,255,0.9) 38px 72px, transparent 72px 116px),
+        linear-gradient(#4b5568, #2f3747);
+      border-top: 8px solid rgba(255,255,255,0.72);
+      border-bottom: 8px solid rgba(39,48,67,0.22);
+      transform: rotate(-2deg);
+      opacity: 0.95;
+      pointer-events: none;
+    }
+
+    #setupScreen .card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,249,232,0.92));
+      border: 6px solid rgba(255,255,255,0.98);
+      box-shadow: 0 18px 38px rgba(39,48,67,0.24);
+      z-index: 1;
+    }
+
+    .garage-badge {
+      width: min(260px, 72vw);
+      margin: 0 auto 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #273043, #4b5568);
+      color: white;
+      font-size: clamp(1rem, 4vw, 1.25rem);
+      font-weight: 1000;
+      letter-spacing: 0.04em;
+      box-shadow: 0 7px 0 rgba(0,0,0,0.18), 0 13px 18px rgba(0,0,0,0.16);
+    }
+
+    .home-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .home-vehicle-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      font-size: clamp(2.2rem, 10vw, 4.4rem);
+      line-height: 1;
+      margin: 4px 0 8px;
+      animation: garageDrive 2.2s ease-in-out infinite;
+    }
+
+    .home-title h1 {
+      font-size: clamp(2.65rem, 13vw, 5.4rem);
+      margin-bottom: 4px;
+      text-shadow:
+        0 3px 0 rgba(255,255,255,0.8),
+        0 7px 0 rgba(255,111,177,0.28);
+    }
+
+    .subtitle.home-subtitle {
+      font-weight: 900;
+      background: rgba(255,255,255,0.72);
+      border-radius: 20px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+    }
+
+    .word-entry-panel {
+      background: rgba(255,255,255,0.68);
+      border: 4px dashed rgba(39,48,67,0.18);
+      border-radius: 26px;
+      padding: 12px;
+      margin: 10px auto 0;
+      max-width: 680px;
+    }
+
+    .adult-label.vehicle-label {
+      margin-top: 2px;
+      font-size: clamp(1.15rem, 4.6vw, 1.45rem);
+    }
+
+    .name-input {
+      width: min(650px, 100%);
+      border: 4px solid var(--blue);
+      border-radius: 22px;
+      padding: 12px 16px;
+      font-size: clamp(1.2rem, 5vw, 1.45rem);
+      background: linear-gradient(180deg, #fffef8, #f0fbff);
+      color: var(--dark);
+      outline: none;
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .name-input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 6px rgba(184, 140, 255, 0.22);
+    }
+
+    .name-input::placeholder {
+      text-transform: none;
+      font-weight: 700;
+      opacity: 0.5;
+      letter-spacing: 0;
+    }
+
+    .hint-inline {
+      font-weight: 700;
+      font-size: clamp(0.8rem, 3vw, 0.95rem);
+      opacity: 0.65;
+    }
+
+    #wordInput {
+      background:
+        linear-gradient(180deg, #fffef8, #fff9df);
+      border-color: var(--orange);
+      box-shadow: inset 0 -6px 0 rgba(255,159,67,0.16);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .start-vehicle-button {
+      position: relative;
+      padding-left: 34px;
+      padding-right: 34px;
+      background: linear-gradient(135deg, #ffd85c, #ff9f43);
+      box-shadow: 0 9px 0 #c96a10, 0 16px 22px var(--soft-shadow);
+    }
+
+    .start-vehicle-button::before {
+      content: none;
+    }
+
+    .start-vehicle-button::after {
+      content: none;
+    }
+
+    .home-tip {
+      display: inline-block;
+      margin-top: 11px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(107,220,255,0.26);
+      font-size: clamp(0.85rem, 3.4vw, 1rem);
+      font-weight: 800;
+    }
+
+    @keyframes garageDrive {
+      0%, 100% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+    }
+
+    @media (max-height: 720px) {
+      #setupScreen::before {
+        height: 70px;
+        bottom: 2.5%;
+      }
+
+      .home-vehicle-row {
+        font-size: clamp(1.8rem, 8vw, 3.2rem);
+        margin-bottom: 4px;
+      }
+
+      .subtitle.home-subtitle {
+        padding: 7px 10px;
+        margin-bottom: 10px;
+      }
+
+      .word-entry-panel {
+        padding: 9px;
+      }
+
+      textarea {
+        min-height: 96px;
+      }
+    }
+
+
+    #gameScreen.active {
+      justify-content: flex-start;
+      padding: 6px;
+      gap: 5px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-y: auto;
+    }
+
+    .game-header {
+      width: min(1000px, 100%);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 2px auto 4px;
+      background: rgba(255, 255, 255, 0.74);
+      border-radius: 22px;
+      padding: 6px 8px;
+      box-shadow: 0 7px 18px var(--soft-shadow);
+    }
+
+    .mini-panel {
+      font-size: clamp(0.85rem, 3.4vw, 1.2rem);
+      font-weight: 1000;
+      white-space: nowrap;
+    }
+
+    .mini-panel.left {
+      text-align: left;
+    }
+
+    .mini-panel.right {
+      text-align: right;
+    }
+
+    .target-word {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      min-width: 80px;
+    }
+
+    .target-slot {
+      width: clamp(34px, 8vw, 70px);
+      height: clamp(42px, 9vw, 78px);
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.45rem, 5.5vw, 3rem);
+      font-weight: 1000;
+      background: rgba(255, 255, 255, 0.92);
+      border: 3px solid rgba(39, 48, 67, 0.16);
+      box-shadow: inset 0 -5px 0 rgba(39, 48, 67, 0.08);
+    }
+
+    .target-slot.done {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      animation: popIn 0.28s ease-out;
+    }
+
+    .target-slot.next {
+      border-color: var(--pink);
+      animation: pulse 0.95s infinite;
+    }
+
+    /* NEW: big mobile-friendly target letter panel */
+    .target-letter-panel {
+      width: min(1000px, 100%);
+      background: rgba(255, 255, 255, 0.72);
+      border: 5px solid rgba(255,255,255,0.85);
+      border-radius: 28px;
+      padding: 5px 10px 7px;
+      margin: 2px auto 3px;
+      text-align: center;
+      box-shadow: 0 8px 20px var(--soft-shadow);
+    }
+
+    .target-letter-label {
+      font-size: clamp(1rem, 4.2vw, 1.35rem);
+      font-weight: 1000;
+      margin-bottom: 0;
+    }
+
+    .big-target-letter {
+      font-size: clamp(4.4rem, 22vw, 8rem);
+      line-height: 0.9;
+      font-weight: 1000;
+      color: var(--dark);
+      text-shadow:
+        0 0 8px rgba(255,255,255,0.95),
+        0 0 18px rgba(255,216,92,0.9),
+        0 6px 0 rgba(255,111,177,0.45);
+      animation: targetGlow 1.25s ease-in-out infinite;
+      min-height: 68px;
+    }
+
+    .message {
+      width: min(1000px, 100%);
+      min-height: 30px;
+      margin: 0 auto 4px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.05rem, 4.8vw, 1.7rem);
+      font-weight: 1000;
+      text-align: center;
+      color: var(--dark);
+      text-shadow: 0 2px 0 rgba(255,255,255,0.6);
+      padding: 0 8px;
+    }
+
+    .play-area {
+      --tile-size: clamp(66px, 18vw, 82px);
+      --grid-gap: clamp(8px, 2.5vw, 14px);
+      --grid-padding: clamp(8px, 2.5vw, 14px);
+      --grid-cols: 3;
+
+      width: min(1000px, 100%);
+      /* Height grows with content — no fixed row count needed */
+      height: auto;
+      flex: 0 0 auto;
+      position: relative;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 25% 30%, rgba(255,255,255,0.65), transparent 22%),
+        radial-gradient(circle at 70% 60%, rgba(255,255,255,0.45), transparent 24%),
+        rgba(255, 255, 255, 0.34);
+      border: 5px solid rgba(255,255,255,0.72);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.32), 0 12px 24px var(--soft-shadow);
+
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), var(--tile-size));
+      grid-auto-rows: var(--tile-size);
+      gap: var(--grid-gap);
+      justify-content: center;
+      justify-items: center;
+      padding: var(--grid-padding);
+    }
+
+    @media (min-width: 700px) {
+      .play-area {
+        --tile-size: 88px;
+        --grid-gap: 16px;
+        --grid-padding: 16px;
+        --grid-cols: 4;
+      }
+    }
+
+    .letter {
+      position: relative;
+      width: var(--tile-size);
+      height: var(--tile-size);
+      min-width: var(--tile-size);
+      min-height: var(--tile-size);
+      border-radius: 27px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(2.4rem, 9vw, 4.6rem);
+      font-weight: 1000;
+      line-height: 1;
+      color: var(--dark);
+      border: 5px solid var(--white);
+      box-shadow: 0 9px 0 rgba(0,0,0,0.12), 0 15px 25px rgba(0,0,0,0.18);
+      cursor: pointer;
+      user-select: none;
+      animation: floaty 2.1s ease-in-out infinite;
+      transition: transform 0.16s ease, opacity 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .letter:nth-child(5n+1) { background: var(--yellow); animation-duration: 1.9s; }
+    .letter:nth-child(5n+2) { background: var(--pink); animation-duration: 2.2s; }
+    .letter:nth-child(5n+3) { background: var(--blue); animation-duration: 2.05s; }
+    .letter:nth-child(5n+4) { background: var(--green); animation-duration: 2.35s; }
+    .letter:nth-child(5n+5) { background: var(--purple); animation-duration: 1.8s; }
+
+    .letter.correct {
+      pointer-events: none;
+      animation: collect 0.45s forwards;
+    }
+
+    .letter.wrong {
+      animation: wrongWiggle 0.38s;
+    }
+
+    .letter.silly-face {
+      filter: hue-rotate(30deg) brightness(1.15);
+    }
+
+    .bottom-controls {
+      width: min(1000px, 100%);
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 4px auto 0;
+    }
+
+    .small-button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 1000;
+      font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+      color: var(--dark);
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 5px 0 rgba(39, 48, 67, 0.15);
+      cursor: pointer;
+      min-height: 38px;
+    }
+
+
+
+
+    #gameScreen,
+    #gameScreen * {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .letter,
+    .small-button,
+    .big-button {
+      -webkit-user-drag: none;
+    }
+
+    /* CORRECT LETTER HINT */
+    .letter.is-target {
+      box-shadow:
+        0 9px 0 rgba(0,0,0,0.12),
+        0 15px 25px rgba(0,0,0,0.18),
+        0 0 0 6px rgba(255, 255, 255, 0.55),
+        0 0 22px rgba(255, 216, 92, 0.9);
+      filter: brightness(1.08);
+    }
+
+
+
+    /* MY WORLD BUTTON — shows item count */
+    .world-button {
+      background: linear-gradient(135deg, var(--purple), #8b5cf6);
+      color: white;
+      box-shadow: 0 5px 0 #5b21b6;
+    }
+
+    .world-button #worldCount {
+      display: inline-block;
+      background: rgba(255,255,255,0.28);
+      border-radius: 999px;
+      padding: 1px 7px;
+      font-size: 0.85em;
+      margin-left: 4px;
+    }
+
+    /* WORLD SCREEN */
+    #worldScreen.active {
+      justify-content: flex-start;
+      padding: 0;
+      background:
+        radial-gradient(ellipse at 0%   0%,   rgba(184,140,255,0.45) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 0%,   rgba(107,220,255,0.40) 0%, transparent 50%),
+        radial-gradient(ellipse at 50%  100%, rgba(255,216,92, 0.40) 0%, transparent 50%),
+        linear-gradient(160deg, #f0e8ff 0%, #e8f8ff 50%, #fffbe8 100%);
+    }
+
+    .world-header {
+      width: 100%;
+      padding: clamp(14px, 4vw, 28px) clamp(14px, 4vw, 28px) 10px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .world-title {
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      font-weight: 1000;
+      background: linear-gradient(135deg, #b88cff, #6bdcff, #ffd85c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .world-word-count {
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      font-weight: 800;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+
+    .world-grid {
+      flex: 1;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(clamp(90px, 22vw, 130px), 1fr));
+      gap: clamp(10px, 3vw, 18px);
+      padding: clamp(12px, 3vw, 22px);
+      align-content: start;
+      overflow-y: auto;
+    }
+
+    .world-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.85);
+      border: 3px solid rgba(255,255,255,0.95);
+      border-radius: 22px;
+      padding: clamp(10px, 3vw, 16px) 8px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+      cursor: pointer;
+      animation: worldItemIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .world-item:active {
+      transform: scale(0.93);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    .world-item.newest {
+      box-shadow:
+        0 0 0 4px var(--yellow),
+        0 8px 20px rgba(0,0,0,0.14);
+      animation: worldItemNewest 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .world-item-img {
+      width: clamp(52px, 14vw, 80px);
+      height: clamp(52px, 14vw, 80px);
+      object-fit: contain;
+    }
+
+    .world-item-label {
+      font-size: clamp(0.75rem, 3vw, 0.95rem);
+      font-weight: 1000;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .world-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      font-weight: 800;
+      opacity: 0.55;
+    }
+
+    .world-footer {
+      width: 100%;
+      padding: clamp(10px, 3vw, 20px);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    @keyframes worldItemIn {
+      0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+      70%  { transform: scale(1.1) rotate(3deg);  opacity: 1; }
+      100% { transform: scale(1)   rotate(0);      opacity: 1; }
+    }
+
+    @keyframes worldItemNewest {
+      0%   { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+      60%  { transform: scale(1.18) rotate(5deg);  opacity: 1; }
+      100% { transform: scale(1)    rotate(0);      opacity: 1; }
+    }
+
+    @keyframes garagePop {
+      0% { transform: scale(0.25) rotate(-14deg); opacity: 0; }
+      70% { transform: scale(1.22) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    /* REWARD SCREEN */
+    #rewardScreen.active {
+      justify-content: flex-start;
+      padding-top: max(14px, calc(50vh - 380px));
+      padding-bottom: 24px;
+      /* Lively layered blob background */
+      background:
+        radial-gradient(ellipse at 10% 20%,  rgba(255, 216, 92,  0.55) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 15%,  rgba(107, 220, 255, 0.50) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 80%,  rgba(255, 111, 177, 0.50) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 85%,  rgba(138, 242, 123, 0.45) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%,  rgba(184, 140, 255, 0.25) 0%, transparent 60%),
+        linear-gradient(160deg, #fff8d6 0%, #ffeaf5 50%, #d6f5ff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Large decorative blobs that float gently */
+    #rewardScreen.active::before {
+      content: "";
+      position: fixed;
+      top: -80px; left: -80px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,216,92,0.35), transparent 70%);
+      animation: blobFloat 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    #rewardScreen.active::after {
+      content: "";
+      position: fixed;
+      bottom: -60px; right: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(107,220,255,0.35), transparent 70%);
+      animation: blobFloat 5s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0, 0)   scale(1);    }
+      50%       { transform: translate(18px, -18px) scale(1.08); }
+    }
+
+    .reward-card {
+      width: min(680px, 94vw);
+      background: rgba(255,255,255,0.88);
+      border: 6px solid #fff;
+      border-radius: 40px;
+      box-shadow:
+        0 0 0 10px rgba(255,255,255,0.35),
+        0 20px 50px rgba(0,0,0,0.14);
+      padding: clamp(20px, 5vw, 44px);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-headline {
+      font-size: clamp(1.6rem, 7vw, 2.8rem);
+      font-weight: 1000;
+      margin-bottom: 10px;
+      /* Shimmery gradient text */
+      background: linear-gradient(135deg, #ff6fb1, #ffd85c, #6bdcff, #8af27b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Starburst / ray ring behind the image */
+    .reward-img-outer {
+      position: relative;
+      width: clamp(180px, 52vw, 280px);
+      height: clamp(180px, 52vw, 280px);
+      margin: 0 auto 16px;
+    }
+
+    .reward-img-outer::before {
+      content: "";
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      background: conic-gradient(
+        rgba(255,216,92,0.7)  0deg  20deg,  transparent  20deg  40deg,
+        rgba(107,220,255,0.7) 40deg 60deg,  transparent  60deg  80deg,
+        rgba(255,111,177,0.7) 80deg 100deg, transparent 100deg 120deg,
+        rgba(138,242,123,0.7) 120deg 140deg,transparent 140deg 160deg,
+        rgba(184,140,255,0.7) 160deg 180deg,transparent 180deg 200deg,
+        rgba(255,216,92,0.7) 200deg 220deg, transparent 220deg 240deg,
+        rgba(107,220,255,0.7) 240deg 260deg,transparent 260deg 280deg,
+        rgba(255,111,177,0.7) 280deg 300deg,transparent 300deg 320deg,
+        rgba(138,242,123,0.7) 320deg 340deg,transparent 340deg 360deg
+      );
+      animation: spinRays 8s linear infinite;
+      mask: radial-gradient(transparent 42%, black 44%);
+      -webkit-mask: radial-gradient(transparent 42%, black 44%);
+    }
+
+    @keyframes spinRays {
+      from { transform: rotate(0deg);   }
+      to   { transform: rotate(360deg); }
+    }
+
+    .reward-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.16));
+      animation: rewardPop 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+      z-index: 1;
+    }
+
+    .reward-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Word displayed as colored letter slots */
+    .reward-letters {
+      display: flex;
+      justify-content: center;
+      gap: clamp(5px, 2vw, 10px);
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .reward-letter-slot {
+      width: clamp(38px, 10vw, 62px);
+      height: clamp(46px, 12vw, 74px);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.5rem, 5.5vw, 2.8rem);
+      font-weight: 1000;
+      line-height: 1;
+      color: var(--dark);
+      border: 4px solid rgba(255,255,255,0.9);
+      box-shadow: 0 6px 0 rgba(0,0,0,0.1), 0 10px 18px rgba(0,0,0,0.1);
+      animation: popIn 0.3s ease-out both;
+    }
+
+    .reward-add-button {
+      display: block;
+      width: 100%;
+      margin: 0 0 10px;
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+    }
+
+    /* CSS-only floating sparkle dots */
+    .reward-sparkles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 40px;
+    }
+
+    .reward-sparkles span {
+      position: absolute;
+      border-radius: 50%;
+      animation: sparklePop 1.8s ease-out both;
+    }
+
+    .reward-sparkles span:nth-child(1)  { width:14px;height:14px;background:var(--yellow); top:8%;  left:12%; animation-delay:0.1s; }
+    .reward-sparkles span:nth-child(2)  { width:10px;height:10px;background:var(--pink);   top:12%; right:14%;animation-delay:0.2s; }
+    .reward-sparkles span:nth-child(3)  { width:18px;height:18px;background:var(--blue);   top:20%; left:5%;  animation-delay:0.15s;}
+    .reward-sparkles span:nth-child(4)  { width:12px;height:12px;background:var(--green);  top:6%;  right:8%; animation-delay:0.3s; }
+    .reward-sparkles span:nth-child(5)  { width:8px; height:8px; background:var(--purple); bottom:22%;left:8%; animation-delay:0.25s;}
+    .reward-sparkles span:nth-child(6)  { width:16px;height:16px;background:var(--orange); bottom:18%;right:10%;animation-delay:0.1s;}
+    .reward-sparkles span:nth-child(7)  { width:10px;height:10px;background:var(--yellow); bottom:10%;left:18%;animation-delay:0.35s;}
+    .reward-sparkles span:nth-child(8)  { width:14px;height:14px;background:var(--pink);   bottom:8%;right:20%;animation-delay:0.2s; }
+
+    @keyframes sparklePop {
+      0%   { transform: scale(0) rotate(0deg);   opacity: 0; }
+      40%  { transform: scale(1.4) rotate(180deg); opacity: 1; }
+      100% { transform: scale(1) rotate(360deg);  opacity: 0.85; }
+    }
+
+    .confetti-piece,
+    .mini-confetti-piece {
+      position: fixed;
+      border-radius: 4px;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .confetti-piece {
+      top: -20px;
+      width: 14px;
+      height: 22px;
+      animation: confettiFall 1.8s linear forwards;
+    }
+
+    /* NEW: small burst after each correct letter */
+    .mini-confetti-piece {
+      width: 10px;
+      height: 14px;
+      animation: miniConfettiBurst 0.72s ease-out forwards;
+    }
+
+    @keyframes targetGlow {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.05); filter: brightness(1.14); }
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-9px) rotate(3deg); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.45) rotate(-8deg); }
+      70% { transform: scale(1.18) rotate(3deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,111,177,0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255,111,177,0.08); }
+    }
+
+    @keyframes collect {
+      0% { transform: scale(1) rotate(0); opacity: 1; }
+      45% { transform: scale(1.3) rotate(12deg); opacity: 1; }
+      100% { transform: scale(0) rotate(25deg); opacity: 0; }
+    }
+
+    @keyframes wrongWiggle {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      20% { transform: translateX(-13px) rotate(-8deg); }
+      40% { transform: translateX(13px) rotate(8deg); }
+      60% { transform: translateX(-8px) rotate(-5deg); }
+      80% { transform: translateX(8px) rotate(5deg); }
+    }
+
+    @keyframes facePop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes tada {
+      0% { transform: scale(0.7) rotate(-4deg); opacity: 0; }
+      55% { transform: scale(1.08) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+    }
+
+    @keyframes miniConfettiBurst {
+      0% {
+        transform: translate(0, 0) scale(1) rotate(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .game-header {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-panel.left,
+      .mini-panel.right {
+        text-align: center;
+      }
+
+      .target-letter-panel {
+        border-radius: 24px;
+      }
+
+      .bottom-controls {
+        margin-bottom: env(safe-area-inset-bottom);
+      }
+    }
+
+    @media (max-height: 720px) {
+      .big-target-letter {
+        font-size: clamp(4.2rem, 20vw, 7rem);
+        min-height: 70px;
+      }
+
+      .target-letter-panel {
+        padding: 6px 10px 8px;
+      }
+
+      .message {
+        min-height: 30px;
+      }
+    }
+  
+  
+    /* REWARD IMAGES */
+
+    .garage-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    @keyframes rewardPop {
+      0%   { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+      70%  { transform: scale(1.15) rotate(4deg);  opacity: 1; }
+      100% { transform: scale(1)    rotate(0);      opacity: 1; }
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- ADULT WORD ENTRY SCREEN -->
+  <main id="setupScreen" class="screen active">
+    <section class="card">
+      <div class="garage-badge">LITTLE WORLDS</div>
+
+      <div class="home-title">
+        <h1>Little Worlds</h1>
+      </div>
+
+      <p class="subtitle home-subtitle">
+        Read words to build your world!
+      </p>
+
+      <div class="word-entry-panel">
+
+        <label class="adult-label vehicle-label" for="childNameInput">Child's name</label>
+        <input id="childNameInput" type="text" class="name-input" spellcheck="false" placeholder="e.g. Rayan" autocomplete="off" />
+
+        <label class="adult-label vehicle-label" for="familyInput" style="margin-top:14px;">Family names <span class="hint-inline">(optional, comma-separated)</span></label>
+        <input id="familyInput" type="text" class="name-input" spellcheck="false" placeholder="e.g. Zaid, Talia, Baba, Nana" autocomplete="off" />
+
+        <label class="adult-label vehicle-label" for="wordInput" style="margin-top:14px;">Extra words <span class="hint-inline">(optional)</span></label>
+        <textarea id="wordInput" spellcheck="false"></textarea>
+        <p class="hint">One word per line — or leave blank to use the built-in list.</p>
+
+      </div>
+
+      <button id="startButton" class="big-button start-vehicle-button" type="button">Start the engines</button>
+
+      <div class="home-tip">Tap Start to turn on sound. Best mobile play: Share → Add to Home Screen</div>
+    </section>
+  </main>
+
+  <!-- CHILD GAME SCREEN -->
+  <main id="gameScreen" class="screen">
+    <header class="game-header">
+      <div class="mini-panel left">Word <span id="wordNumber">1</span> of <span id="wordTotal">1</span></div>
+      <div id="targetWord" class="target-word" aria-label="Target word"></div>
+      <div class="mini-panel right">Stars: <span id="score">0</span></div>
+    </header>
+
+    <!-- NEW MOBILE-FIRST TARGET AREA -->
+    <section class="target-letter-panel" aria-live="polite">
+      <div class="target-letter-label">Find this letter</div>
+      <div id="bigTargetLetter" class="big-target-letter">?</div>
+    </section>
+
+    <div id="message" class="message">Tap the first letter!</div>
+
+    <section id="playArea" class="play-area" aria-label="Letter play area"></section>
+
+    <nav class="bottom-controls">
+      <button id="repeatButton" class="small-button" type="button">Say it again</button>
+      <button id="skipButton" class="small-button" type="button">Next word</button>
+      <button id="myWorldButton" class="small-button world-button" type="button">My World <span id="worldCount"></span></button>
+      <button id="settingsButton" class="small-button" type="button">Change words</button>
+    </nav>
+  </main>
+
+  <!-- REWARD SCREEN -->
+  <main id="rewardScreen" class="screen" aria-live="polite">
+    <div class="reward-card">
+      <div class="reward-sparkles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="reward-headline">You spelled it!</div>
+      <div class="reward-img-outer">
+        <div class="reward-img-wrap">
+          <img id="rewardImg" src="" alt="" class="reward-main-img" />
+        </div>
+      </div>
+      <div id="rewardLetters" class="reward-letters"></div>
+      <button id="addToWorldButton" class="big-button reward-add-button" type="button">Add to my world!</button>
+      <button id="rewardPlayAgainButton" class="big-button secondary-button" type="button">Play again</button>
+    </div>
+  </main>
+
+  <!-- WORLD SCREEN -->
+  <main id="worldScreen" class="screen">
+    <div class="world-header">
+      <div class="world-title">My World</div>
+      <div id="worldWordCount" class="world-word-count"></div>
+    </div>
+    <div id="worldGrid" class="world-grid"></div>
+    <div class="world-footer">
+      <button id="keepPlayingButton" class="big-button" type="button">Keep playing!</button>
+    </div>
+  </main>
+
+  <script>
+    /*
+      GAME SETTINGS
+      -------------
+      You can safely edit these values.
+    */
+    const PHONE_TILE_COUNT = 9;
+    const TABLET_TILE_COUNT = 12;
+    const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    /*
+      OPENMOJI IMAGE HELPER
+      ---------------------
+      Each word maps to an OpenMoji hex code, a display label, and a category.
+      OpenMoji is open-source (CC BY-SA 4.0). Images load from jsDelivr CDN.
+      To swap in custom art later, just change the `hex` to a full URL.
+    */
+    const OPENMOJI_BASE = "https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/";
+
+    function makeRewardImg(hex, label) {
+      return `<img src="${OPENMOJI_BASE}${hex}.svg" alt="${label}" class="reward-image" onerror="this.style.display='none'">`;
+    }
+
+    /*
+      WORD → REWARD MAP
+      -----------------
+      Keys are UPPERCASE words. Each entry has:
+        hex      — OpenMoji unicode hex (visit openmoji.org to find codes)
+        label    — friendly display name
+        category — used for world grouping later
+      Words not in this map get a gold star ⭐ (good for custom names).
+    */
+    const WORD_REWARDS = {
+      // Animals
+      DOG:   { hex: "1F415", label: "Dog",   category: "animals" },
+      CAT:   { hex: "1F431", label: "Cat",   category: "animals" },
+      FISH:  { hex: "1F41F", label: "Fish",  category: "animals" },
+      BIRD:  { hex: "1F426", label: "Bird",  category: "animals" },
+      FROG:  { hex: "1F438", label: "Frog",  category: "animals" },
+      BEAR:  { hex: "1F43B", label: "Bear",  category: "animals" },
+      DUCK:  { hex: "1F986", label: "Duck",  category: "animals" },
+      LION:  { hex: "1F981", label: "Lion",  category: "animals" },
+      COW:   { hex: "1F42E", label: "Cow",   category: "animals" },
+      PIG:   { hex: "1F437", label: "Pig",   category: "animals" },
+      HEN:   { hex: "1F413", label: "Hen",   category: "animals" },
+      BEE:   { hex: "1F41D", label: "Bee",   category: "animals" },
+      // Nature
+      SUN:   { hex: "2600",  label: "Sun",   category: "nature" },
+      MOON:  { hex: "1F319", label: "Moon",  category: "nature" },
+      STAR:  { hex: "2B50",  label: "Star",  category: "nature" },
+      TREE:  { hex: "1F333", label: "Tree",  category: "nature" },
+      ROSE:  { hex: "1F339", label: "Rose",  category: "nature" },
+      RAIN:  { hex: "1F327", label: "Rain",  category: "nature" },
+      SNOW:  { hex: "2744",  label: "Snow",  category: "nature" },
+      LEAF:  { hex: "1F343", label: "Leaf",  category: "nature" },
+      // Vehicles
+      CAR:   { hex: "1F697", label: "Car",   category: "vehicles" },
+      BUS:   { hex: "1F68C", label: "Bus",   category: "vehicles" },
+      BOAT:  { hex: "26F5",  label: "Boat",  category: "vehicles" },
+      BIKE:  { hex: "1F6B2", label: "Bike",  category: "vehicles" },
+      TRUCK: { hex: "1F69A", label: "Truck", category: "vehicles" },
+      TRAIN: { hex: "1F682", label: "Train", category: "vehicles" },
+      PLANE: { hex: "2708",  label: "Plane", category: "vehicles" },
+      // Objects
+      BALL:  { hex: "26BD",  label: "Ball",  category: "objects" },
+      BOOK:  { hex: "1F4DA", label: "Book",  category: "objects" },
+      CAKE:  { hex: "1F382", label: "Cake",  category: "objects" },
+      DRUM:  { hex: "1F941", label: "Drum",  category: "objects" },
+      BELL:  { hex: "1F514", label: "Bell",  category: "objects" },
+      KEY:   { hex: "1F511", label: "Key",   category: "objects" },
+      CUP:   { hex: "1F964", label: "Cup",   category: "objects" },
+      HAT:   { hex: "1F9E2", label: "Hat",   category: "objects" },
+      BAG:   { hex: "1F45C", label: "Bag",   category: "objects" },
+      // Food
+      EGG:   { hex: "1F95A", label: "Egg",   category: "food" },
+      MILK:  { hex: "1F95B", label: "Milk",  category: "food" },
+      CORN:  { hex: "1F33D", label: "Corn",  category: "food" },
+      // Sight words get a special "reading star" image
+      GO:    { hex: "1F680", label: "Go!",   category: "sightwords" },
+      IN:    { hex: "1F4E6", label: "In",    category: "sightwords" },
+      ON:    { hex: "1F4A1", label: "On",    category: "sightwords" },
+      IT:    { hex: "1F3AF", label: "It",    category: "sightwords" },
+      MY:    { hex: "1F451", label: "My",    category: "sightwords" },
+      SEE:   { hex: "1F441", label: "See",   category: "sightwords" },
+      THE:   { hex: "1F31F", label: "The",   category: "sightwords" },
+      ME:    { hex: "1F9D1", label: "Me",    category: "sightwords" },
+    };
+
+    // Neutral person icons — different skin tones, non-gendered (OpenMoji 🧑)
+    const PERSON_ICONS = [
+      { hex: "1F9D1-1F3FB", label: "Person" },  // light
+      { hex: "1F9D1-1F3FC", label: "Person" },  // medium-light
+      { hex: "1F9D1-1F3FD", label: "Person" },  // medium
+      { hex: "1F9D1-1F3FE", label: "Person" },  // medium-dark
+      { hex: "1F9D1-1F3FF", label: "Person" },  // dark
+      { hex: "1F9D1",       label: "Person" },  // default yellow
+    ];
+
+    // Default fallback for unmapped words
+    const FALLBACK_REWARD = { hex: "2B50", label: "Star", category: "names" };
+
+    // Tracks which words are names (child + family), set at game start
+    let nameWords = new Set();
+    let nameIconIndex = 0;  // cycles through PERSON_ICONS per name
+
+    function getReward(word) {
+      const upper = word.toUpperCase();
+      // Named people get a person icon
+      if (nameWords.has(upper)) {
+        const icon = PERSON_ICONS[nameIconIndex % PERSON_ICONS.length];
+        return { hex: icon.hex, label: word, category: "names" };
+      }
+      return WORD_REWARDS[upper] || FALLBACK_REWARD;
+    }
+
+    /*
+      BUILT-IN DEFAULT WORD LIST
+      --------------------------
+      Shown in the textarea on first load.
+      Parent can edit freely.
+    */
+    const DEFAULT_WORDS = `ME
+DOG
+CAT
+SUN
+MOON
+STAR
+BALL
+BOOK
+CAR
+GO
+SEE
+IN
+ON`;
+
+    const happyMessages = [
+      "Pop! That’s it!",
+      "Yes! Super letter eyes!",
+      "Boing! You found it!",
+      "Great tapping!",
+      "That letter jumped into place!",
+      "Zoom! Correct!"
+    ];
+
+    const tryAgainMessages = [
+      "Oopsie banana! Try again.",
+      "That letter is being silly.",
+      "Not that one yet!",
+      "Wiggle letter! Try the big letter.",
+      "Almost! Find the big letter."
+    ];
+
+    const startMessages = [
+      "Find the big letter!",
+      "Tap the matching letter!",
+      "Which one is the same?",
+      "Letter hunt time!"
+    ];
+
+    const wordCompleteMessages = [
+      "You spelled {word}! Amazing!",
+      "Yes! {word}! You did it!",
+      "Wow, you spelled {word}!",
+      "{word}! Superstar speller!",
+      "You spelled every letter in {word}!",
+      "Boom! {word}! That's you!",
+      "Look at you spelling {word}!",
+      "{word}! Woohoo!",
+      "You're on fire! {word}!",
+      "Perfect spelling! {word}!"
+    ];
+
+    /*
+      GAME STATE
+    */
+    let words = [];
+    let currentWordIndex = 0;
+    let currentLetterIndex = 0;
+    let score = 0;
+    let unlockedItems = [];   // { word, reward } objects earned this session
+    let worldOpenedFromReward = false;
+
+    const setupScreen = document.getElementById("setupScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const wordInput = document.getElementById("wordInput");
+    const childNameInput = document.getElementById("childNameInput");
+    const familyInput = document.getElementById("familyInput");
+    const startButton = document.getElementById("startButton");
+    const targetWord = document.getElementById("targetWord");
+    const bigTargetLetter = document.getElementById("bigTargetLetter");
+    const playArea = document.getElementById("playArea");
+    const message = document.getElementById("message");
+    const scoreDisplay = document.getElementById("score");
+    const garageVehicles = document.getElementById("garageVehicles");
+    const wordNumber = document.getElementById("wordNumber");
+    const wordTotal = document.getElementById("wordTotal");
+    const rewardScreen = document.getElementById("rewardScreen");
+    const rewardImg = document.getElementById("rewardImg");
+    const rewardLetters = document.getElementById("rewardLetters");
+    const addToWorldButton = document.getElementById("addToWorldButton");
+    const rewardPlayAgainButton = document.getElementById("rewardPlayAgainButton");
+    const repeatButton = document.getElementById("repeatButton");
+    const skipButton = document.getElementById("skipButton");
+    const myWorldButton = document.getElementById("myWorldButton");
+    const worldCount = document.getElementById("worldCount");
+    const settingsButton = document.getElementById("settingsButton");
+    const worldScreen = document.getElementById("worldScreen");
+    const worldGrid = document.getElementById("worldGrid");
+    const worldWordCount = document.getElementById("worldWordCount");
+    const keepPlayingButton = document.getElementById("keepPlayingButton");
+
+    /*
+      START GAME
+    */
+    startButton.addEventListener("click", () => {
+      enableSpeech();
+
+      // 1. Child's name — always first, never shuffled
+      const childName = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "");
+
+      // 2. Family names — in the order entered, never shuffled
+      const familyNames = familyInput.value
+        .split(/[,\n]+/)
+        .map(w => w.trim().toUpperCase().replace(/[^A-Z]/g, ""))
+        .filter(Boolean);
+
+      // 3. Extra words from textarea, or fall back to default list
+      const extraSource = wordInput.value.trim() || DEFAULT_WORDS;
+      const extraWords = shuffle(cleanWords(extraSource));
+
+      // Register name words so getReward() knows to use person icons
+      nameWords = new Set([childName, ...familyNames].filter(Boolean));
+      nameIconIndex = 0;
+
+      // Build final list: name → family → shuffled rest (deduplicate)
+      const seen = new Set();
+      words = [];
+      for (const w of [childName, ...familyNames, ...extraWords]) {
+        if (w && !seen.has(w)) {
+          seen.add(w);
+          words.push(w);
+        }
+      }
+
+      if (words.length === 0) words = shuffle(cleanWords(DEFAULT_WORDS));
+
+      currentWordIndex = 0;
+      currentLetterIndex = 0;
+      score = 0;
+      unlockedItems = [];
+      updateScore();
+      updateWorldCount();
+      showGame();
+      loadWord();
+      speakOrBeep("start");
+      // Small delay lets speech synthesis wake up before the first prompt
+      setTimeout(speakTargetLetter, 600);
+    });
+
+    addToWorldButton.addEventListener("click", () => {
+      rewardScreen.classList.remove("active");
+      showWorld({ fromReward: true });
+    });
+
+    rewardPlayAgainButton.addEventListener("click", () => {
+      hideReward();
+      currentLetterIndex = 0;
+      loadWord();
+    });
+
+    myWorldButton.addEventListener("click", () => {
+      gameScreen.classList.remove("active");
+      showWorld({ fromReward: false });
+    });
+
+    keepPlayingButton.addEventListener("click", () => {
+      worldScreen.classList.remove("active");
+      if (worldOpenedFromReward) {
+        worldOpenedFromReward = false;
+        goToNextWord();
+      } else {
+        gameScreen.classList.add("active");
+      }
+    });
+
+    repeatButton.addEventListener("click", () => {
+      giveInstruction();
+      speakOrBeep("prompt");
+      speakTargetLetter();
+    });
+
+    skipButton.addEventListener("click", () => {
+      goToNextWord();
+    });
+
+    settingsButton.addEventListener("click", () => {
+      gameScreen.classList.remove("active");
+      rewardScreen.classList.remove("active");
+      worldScreen.classList.remove("active");
+      setupScreen.classList.add("active");
+    });
+
+    /*
+      WORD CLEANUP
+      Allows commas or new lines.
+      Removes spaces and symbols so the game only uses letters.
+    */
+    function cleanWords(text) {
+      return text
+        .split(/[\n,]+/)
+        .map(word => word.trim().toUpperCase().replace(/[^A-Z]/g, ""))
+        .filter(Boolean)
+        .slice(0, 20);
+    }
+
+    function showGame() {
+      setupScreen.classList.remove("active");
+      gameScreen.classList.add("active");
+      wordTotal.textContent = words.length;
+    }
+
+    /*
+      LOAD A WORD
+    */
+    function loadWord() {
+      const word = getCurrentWord();
+
+      currentLetterIndex = 0;
+      wordNumber.textContent = currentWordIndex + 1;
+      targetWord.innerHTML = "";
+      playArea.innerHTML = "";
+
+      for (let i = 0; i < word.length; i++) {
+        const slot = document.createElement("div");
+        slot.className = "target-slot";
+        slot.textContent = i === 0 ? "?" : "";
+        targetWord.appendChild(slot);
+      }
+
+      updateSlots();
+      giveInstruction();
+      makeLetterButtons();
+    }
+
+    function getCurrentWord() {
+      return words[currentWordIndex] || "ZAID";
+    }
+
+    /*
+      DRAW THE WORD SLOTS
+    */
+    function updateSlots() {
+      const word = getCurrentWord();
+      const slots = [...targetWord.children];
+      const nextLetter = word[currentLetterIndex];
+
+      bigTargetLetter.textContent = nextLetter || "★";
+
+      slots.forEach((slot, index) => {
+        slot.classList.remove("done", "next");
+
+        if (index < currentLetterIndex) {
+          slot.textContent = word[index];
+          slot.classList.add("done");
+        } else if (index === currentLetterIndex) {
+          slot.textContent = "?";
+          slot.classList.add("next");
+        } else {
+          slot.textContent = "";
+        }
+      });
+    }
+
+    /*
+      MAKE BIG LETTERS TO TAP
+    */
+    function makeLetterButtons() {
+      playArea.innerHTML = "";
+
+      const word = getCurrentWord();
+      const neededLetter = word[currentLetterIndex];
+
+      // Use clientWidth (matches CSS media queries) rather than innerWidth
+      const tileCount = document.documentElement.clientWidth >= 700 ? TABLET_TILE_COUNT : PHONE_TILE_COUNT;
+      let choices = [neededLetter];
+
+      /*
+        Add a few familiar letters from the word, then fill to a fixed
+        number of tiles. Fixed tile count = no grid jumping between words.
+      */
+      word.split("").forEach(letter => {
+        if (choices.length < tileCount && Math.random() > 0.35) choices.push(letter);
+      });
+
+      while (choices.length < tileCount) {
+        const randomLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+        choices.push(randomLetter);
+      }
+
+      choices = shuffle(choices).slice(0, tileCount);
+
+      choices.forEach((letter, index) => {
+        const button = document.createElement("button");
+        button.className = "letter";
+        if (letter === neededLetter) {
+          button.classList.add("is-target");
+        }
+        button.type = "button";
+        button.textContent = letter;
+        button.setAttribute("aria-label", "Letter " + letter);
+
+        button.style.animationDelay = (Math.random() * 0.45).toFixed(2) + "s";
+
+        button.addEventListener("click", () => handleLetterTap(button, letter));
+        playArea.appendChild(button);
+      });
+    }
+
+    /*
+      HANDLE TAPS
+    */
+    function handleLetterTap(button, tappedLetter) {
+      const word = getCurrentWord();
+      const neededLetter = word[currentLetterIndex];
+
+      if (tappedLetter === neededLetter) {
+        miniConfettiFromElement(button);
+        button.classList.add("correct");
+        score++;
+        updateScore();
+        currentLetterIndex++;
+        speakOrBeep("correct");
+
+        message.textContent = randomFrom(happyMessages);
+
+        setTimeout(() => {
+          updateSlots();
+
+          if (currentLetterIndex >= word.length) {
+            finishWord();
+          } else {
+            giveInstruction();
+            makeLetterButtons();
+            setTimeout(speakTargetLetter, 250);
+          }
+        }, 420);
+      } else {
+        button.classList.remove("wrong", "silly-face");
+        void button.offsetWidth;
+        button.classList.add("wrong", "silly-face");
+        message.textContent = randomFrom(tryAgainMessages);
+        speakOrBeep("wrong");
+        speak("Try again. Find the letter " + neededLetter + ".");
+
+        setTimeout(() => {
+          button.classList.remove("wrong", "silly-face");
+        }, 520);
+      }
+    }
+
+    function giveInstruction() {
+      const word = getCurrentWord();
+      const neededLetter = word[currentLetterIndex];
+
+      if (neededLetter) {
+        bigTargetLetter.textContent = neededLetter;
+        message.textContent = randomFrom(startMessages);
+      }
+    }
+
+    function updateScore() {
+      scoreDisplay.textContent = score;
+    }
+
+    /*
+      FINISH WORD
+    */
+    function finishWord() {
+      const word = getCurrentWord();
+      const reward = getReward(word);
+
+      speakOrBeep("win");
+      unlockItem(word);
+      makeConfetti();
+
+      // Populate reward screen
+      rewardImg.src = `${OPENMOJI_BASE}${reward.hex}.svg`;
+      rewardImg.alt = reward.label;
+
+      // Build colored letter slots
+      rewardLetters.innerHTML = "";
+      const colors = ["var(--yellow)", "var(--pink)", "var(--blue)", "var(--green)", "var(--purple)", "var(--orange)"];
+      word.split("").forEach((letter, i) => {
+        const slot = document.createElement("div");
+        slot.className = "reward-letter-slot";
+        slot.textContent = letter;
+        slot.style.background = colors[i % colors.length];
+        slot.style.animationDelay = (i * 0.07) + "s";
+        rewardLetters.appendChild(slot);
+      });
+
+      speak(randomFrom(wordCompleteMessages).replace("{word}", word));
+      showReward();
+    }
+
+    function showReward() {
+      gameScreen.classList.remove("active");
+      rewardScreen.classList.add("active");
+    }
+
+    function hideReward() {
+      rewardScreen.classList.remove("active");
+      gameScreen.classList.add("active");
+    }
+
+    function goToNextWord() {
+      currentWordIndex++;
+
+      if (currentWordIndex >= words.length) {
+        currentWordIndex = 0;
+      }
+
+      currentLetterIndex = 0;
+      loadWord();
+      speakOrBeep("start");
+      setTimeout(speakTargetLetter, 400);
+    }
+
+
+    /*
+      WORD REWARDS
+      ------------
+      Each completed word unlocks the matching image for that word.
+      The world panel fills up visibly so the child sees progress.
+    */
+    function unlockItem(word) {
+      const reward = getReward(word);
+      if (nameWords.has(word.toUpperCase())) nameIconIndex++;
+      unlockedItems.push({ word, reward });
+      updateWorldCount();
+    }
+
+    function updateWorldCount() {
+      const n = unlockedItems.length;
+      if (worldCount) worldCount.textContent = n > 0 ? n : "";
+    }
+
+    function showWorld({ fromReward = false } = {}) {
+      worldOpenedFromReward = fromReward;
+      // Rebuild the grid
+      worldGrid.innerHTML = "";
+
+      if (unlockedItems.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "world-empty";
+        empty.textContent = "Finish a word to add it to your world!";
+        worldGrid.appendChild(empty);
+      } else {
+        unlockedItems.forEach(({ word, reward }, i) => {
+          const isNewest = fromReward && i === unlockedItems.length - 1;
+          const item = document.createElement("div");
+          item.className = "world-item" + (isNewest ? " newest" : "");
+          item.style.animationDelay = isNewest ? "0s" : (i * 0.04).toFixed(2) + "s";
+
+          const img = document.createElement("img");
+          img.className = "world-item-img";
+          img.src = `${OPENMOJI_BASE}${reward.hex}.svg`;
+          img.alt = reward.label;
+
+          const label = document.createElement("div");
+          label.className = "world-item-label";
+          label.textContent = word;
+
+          item.appendChild(img);
+          item.appendChild(label);
+
+          // Tap to hear the word
+          item.addEventListener("click", () => {
+            speakOrBeep("correct");
+            speak(word);
+          });
+
+          worldGrid.appendChild(item);
+        });
+
+        // Scroll newest item into view
+        if (fromReward) {
+          setTimeout(() => {
+            const newest = worldGrid.querySelector(".newest");
+            if (newest) newest.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 300);
+        }
+      }
+
+      const n = unlockedItems.length;
+      worldWordCount.textContent = n === 0 ? "" :
+        n === 1 ? "1 word spelled!" : n + " words spelled!";
+
+      worldScreen.classList.add("active");
+    }
+
+    /*
+      BIG CONFETTI
+    */
+    function makeConfetti() {
+      const colors = ["#ff6fb1", "#ffd85c", "#6bdcff", "#8af27b", "#b88cff", "#ff9f43"];
+
+      for (let i = 0; i < 70; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 0.35 + "s";
+        piece.style.animationDuration = randomBetween(1.2, 2.4) + "s";
+        document.body.appendChild(piece);
+
+        setTimeout(() => piece.remove(), 2800);
+      }
+    }
+
+    /*
+      MINI CONFETTI AFTER EACH CORRECT LETTER
+    */
+    function miniConfettiFromElement(element) {
+      const colors = ["#ff6fb1", "#ffd85c", "#6bdcff", "#8af27b", "#b88cff", "#ff9f43"];
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 18; i++) {
+        const piece = document.createElement("div");
+        piece.className = "mini-confetti-piece";
+        piece.style.left = centerX + "px";
+        piece.style.top = centerY + "px";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty("--dx", randomBetween(-90, 90) + "px");
+        piece.style.setProperty("--dy", randomBetween(-110, 50) + "px");
+        piece.style.animationDelay = randomBetween(0, 0.08) + "s";
+        document.body.appendChild(piece);
+
+        setTimeout(() => piece.remove(), 900);
+      }
+    }
+
+
+    /*
+      SPOKEN LETTER PROMPTS
+      ---------------------
+      Uses the browser's built-in speech synthesis.
+      Important mobile note:
+      Speech usually starts working only after the child/adult taps Start,
+      because mobile browsers block audio before user interaction.
+    */
+    let speechEnabled = false;
+
+    function enableSpeech() {
+      speechEnabled = true;
+
+      if ("speechSynthesis" in window) {
+        // Wake up speech gently after the Start button tap.
+        const wake = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(wake);
+      }
+    }
+
+    function speak(text) {
+      if (!speechEnabled) return;
+      if (!("speechSynthesis" in window)) return;
+
+      try {
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.86;
+        utterance.pitch = 1.18;
+        utterance.volume = 1;
+
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        // If speech is blocked or unavailable, the game still works visually.
+      }
+    }
+
+    function speakTargetLetter() {
+      const word = getCurrentWord();
+      const neededLetter = word[currentLetterIndex];
+
+      if (neededLetter) {
+        speak("Can you find the letter " + neededLetter + "?");
+      }
+    }
+
+    /*
+      SIMPLE SOUND EFFECTS
+      No audio files needed. These are tiny browser beeps.
+    */
+    let audioContext;
+
+    function speakOrBeep(type) {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+
+        if (type === "correct") playTone(640, 0.09, "sine");
+        if (type === "wrong") playTone(160, 0.12, "triangle");
+        if (type === "win") {
+          playTone(520, 0.12, "sine");
+          setTimeout(() => playTone(700, 0.12, "sine"), 120);
+          setTimeout(() => playTone(900, 0.18, "sine"), 240);
+        }
+        if (type === "start" || type === "prompt") playTone(420, 0.08, "sine");
+      } catch (error) {
+        // Some browsers block audio until after user interaction.
+        // The game still works perfectly without sound.
+      }
+    }
+
+    function playTone(frequency, duration, type) {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+
+    /*
+      MOBILE BROWSER CHROME REDUCTION
+      --------------------------------
+      A normal webpage cannot fully control Safari/Chrome browser bars.
+      These guards reduce accidental scrolling, zooming, text selection,
+      and delayed tap behavior inside the game area.
+
+      Best experience on iPhone:
+      Share button → Add to Home Screen → open from the Home Screen.
+    */
+    document.addEventListener("gesturestart", event => {
+      event.preventDefault();
+    });
+
+    document.addEventListener("touchmove", event => {
+      if (gameScreen.classList.contains("active")) {
+        event.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener("dblclick", event => {
+      event.preventDefault();
+    }, { passive: false });
+
+    /*
+      UTILITIES
+    */
+    function shuffle(array) {
+      const copy = [...array];
+
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+
+      return copy;
+    }
+
+    function randomFrom(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+  </script>
+</body>
+</html>
