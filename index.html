@@ -192,6 +192,68 @@
     }
 
 
+    /* WELCOME SCREEN */
+    #welcomeScreen.active {
+      justify-content: center;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.9) 0 4%, transparent 5%),
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,0.75) 0 3%, transparent 4%),
+        radial-gradient(circle at 20% 85%, rgba(255,255,255,0.8) 0 3%, transparent 4%),
+        linear-gradient(135deg, #8ee7ff 0%, #ffe98a 40%, #ff9ed0 100%);
+    }
+
+    .welcome-card {
+      width: min(560px, 92vw);
+      background: rgba(255,255,255,0.88);
+      border: 6px solid #fff;
+      border-radius: 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.16);
+      padding: clamp(28px, 7vw, 54px) clamp(20px, 5vw, 40px);
+      text-align: center;
+    }
+
+    .welcome-title {
+      font-size: clamp(2.8rem, 12vw, 5rem);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #6bdcff, #b88cff, #ff6fb1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-tagline {
+      font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+      font-weight: 800;
+      opacity: 0.65;
+      margin-bottom: 24px;
+    }
+
+    .welcome-themes {
+      display: flex;
+      justify-content: center;
+      gap: clamp(10px, 3vw, 18px);
+      margin-bottom: 28px;
+    }
+
+    .welcome-theme-img {
+      width: clamp(48px, 13vw, 72px);
+      height: clamp(48px, 13vw, 72px);
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.14));
+      animation: floaty 2s ease-in-out infinite;
+    }
+
+    .welcome-theme-img:nth-child(2) { animation-delay: 0.3s; }
+    .welcome-theme-img:nth-child(3) { animation-delay: 0.6s; }
+    .welcome-theme-img:nth-child(4) { animation-delay: 0.9s; }
+
+    .welcome-start-button {
+      width: 100%;
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+    }
+
     /* MAIN SCREEN */
     #mainScreen.active {
       justify-content: flex-start;
@@ -291,10 +353,54 @@
     .theme-card-count {
       font-size: clamp(0.75rem, 2.8vw, 0.9rem);
       font-weight: 800;
-      color: rgba(255,255,255,0.85);
-      background: rgba(0,0,0,0.15);
+      color: rgba(255,255,255,0.9);
+    }
+
+    .theme-progress-bar {
+      width: 100%;
+      height: 7px;
+      background: rgba(0,0,0,0.18);
       border-radius: 999px;
-      padding: 3px 10px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .theme-progress-fill {
+      height: 100%;
+      background: rgba(255,255,255,0.85);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* Complete badge */
+    .theme-card.complete {
+      box-shadow:
+        0 0 0 4px #ffd85c,
+        0 10px 28px rgba(0,0,0,0.2);
+    }
+
+    .theme-card-complete-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: linear-gradient(135deg, #ffd85c, #ff9f43);
+      color: var(--dark);
+      font-size: clamp(0.6rem, 2.2vw, 0.78rem);
+      font-weight: 900;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 3px solid white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.16);
+      letter-spacing: 0.03em;
+    }
+
+    /* Tablet: 4-column theme grid */
+    @media (min-width: 700px) {
+      .theme-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 900px;
+        margin: 0 auto;
+      }
     }
 
     /* SETTINGS SCREEN */
@@ -913,6 +1019,22 @@
       font-size: clamp(1.2rem, 5vw, 1.7rem);
     }
 
+    /* World complete variant */
+    #endScreen.world-complete .end-headline {
+      background: linear-gradient(135deg, #ffd85c, #ff9f43, #ff6fb1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: clamp(2rem, 9vw, 4rem);
+    }
+
+    #endScreen.world-complete .end-card {
+      box-shadow:
+        0 0 0 6px #ffd85c,
+        0 0 0 12px rgba(255,216,92,0.3),
+        0 20px 50px rgba(0,0,0,0.14);
+    }
+
     /* Reuse sparkle styles from reward screen */
     .end-sparkles {
       position: absolute;
@@ -1274,6 +1396,16 @@
 </head>
 
 <body>
+  <!-- WELCOME SCREEN (first visit only) -->
+  <main id="welcomeScreen" class="screen">
+    <div class="welcome-card">
+      <div class="welcome-title">Little Worlds</div>
+      <div class="welcome-tagline">Read words. Build your world.</div>
+      <div id="welcomeThemes" class="welcome-themes" aria-hidden="true"></div>
+      <button id="welcomeStartButton" class="big-button welcome-start-button" type="button">Get started</button>
+    </div>
+  </main>
+
   <!-- MAIN SCREEN (child-facing world picker) -->
   <main id="mainScreen" class="screen active">
     <div class="main-header">
@@ -1716,6 +1848,9 @@ ON`;
     /*
       DOM REFERENCES
     */
+    const welcomeScreen       = document.getElementById("welcomeScreen");
+    const welcomeStartButton  = document.getElementById("welcomeStartButton");
+    const welcomeThemes       = document.getElementById("welcomeThemes");
     const mainScreen          = document.getElementById("mainScreen");
     const mainTitle           = document.getElementById("mainTitle");
     const themeGrid           = document.getElementById("themeGrid");
@@ -1759,22 +1894,43 @@ ON`;
       APP INIT — runs on page load
     */
     (function init() {
+      // Build welcome screen theme images
+      THEMES.forEach((theme, i) => {
+        const img = document.createElement("img");
+        img.className = "welcome-theme-img";
+        img.src = `${OPENMOJI_BASE}${theme.heroHex}.svg`;
+        img.alt = theme.name;
+        welcomeThemes.appendChild(img);
+      });
+
+      const hasWelcomed = localStorage.getItem("littleWorlds_welcomed");
       const hasSavedSettings = loadSettings();
-      if (hasSavedSettings && childNameInput.value.trim()) {
+
+      if (!hasWelcomed) {
+        // First ever visit — show welcome screen
+        hideAll();
+        welcomeScreen.classList.add("active");
+      } else if (hasSavedSettings && childNameInput.value.trim()) {
         loadWorlds();
         showMain();
       } else {
-        // First visit — show settings
+        hideAll();
         settingsScreen.classList.add("active");
-        mainScreen.classList.remove("active");
       }
     })();
+
+    welcomeStartButton.addEventListener("click", () => {
+      enableSpeech();
+      localStorage.setItem("littleWorlds_welcomed", "1");
+      hideAll();
+      settingsScreen.classList.add("active");
+    });
 
     /*
       NAVIGATION HELPERS
     */
     function hideAll() {
-      [mainScreen, settingsScreen, gameScreen, rewardScreen, worldScreen, endScreen]
+      [welcomeScreen, mainScreen, settingsScreen, gameScreen, rewardScreen, worldScreen, endScreen]
         .forEach(s => s.classList.remove("active"));
     }
 
@@ -1787,17 +1943,31 @@ ON`;
       mainScreen.classList.add("active");
     }
 
+    function themeTotal(theme) {
+      return theme.words.length + SIGHT_WORDS.length;
+    }
+
     function buildThemeGrid() {
       themeGrid.innerHTML = "";
       THEMES.forEach(theme => {
         const items = allWorlds[theme.id] || [];
+        const collected = items.length;
+        const total = themeTotal(theme);
+        const pct = Math.min(100, Math.round((collected / total) * 100));
+        const isComplete = collected >= total;
+
         const card = document.createElement("div");
-        card.className = "theme-card";
+        card.className = "theme-card" + (isComplete ? " complete" : "");
         card.style.background = theme.cardBg;
+
         card.innerHTML = `
+          ${isComplete ? '<div class="theme-card-complete-badge">Complete!</div>' : ''}
           <img class="theme-card-img" src="${OPENMOJI_BASE}${theme.heroHex}.svg" alt="${theme.name}">
           <div class="theme-card-name">${theme.name}</div>
-          <div class="theme-card-count">${items.length === 0 ? "Start spelling!" : items.length + " word" + (items.length === 1 ? "" : "s")}</div>
+          <div class="theme-card-count">${collected === 0 ? "Start spelling!" : collected + " / " + total + " words"}</div>
+          <div class="theme-progress-bar">
+            <div class="theme-progress-fill" style="width:${pct}%"></div>
+          </div>
         `;
         card.addEventListener("click", () => {
           enableSpeech();
@@ -2217,9 +2387,26 @@ ON`;
       makeConfetti();
       speakOrBeep("win");
 
-      endSummary.textContent = sessionWordCount === 1
-        ? "You spelled 1 word this time!"
-        : "You spelled " + sessionWordCount + " words!";
+      // Detect if child has now completed the whole theme
+      const theme = THEMES.find(t => t.id === currentThemeId);
+      const collected = (allWorlds[currentThemeId] || []).length;
+      const isWorldComplete = theme && collected >= themeTotal(theme);
+
+      if (isWorldComplete) {
+        endScreen.classList.add("world-complete");
+        document.querySelector("#endScreen .end-headline").textContent = "World Complete!";
+        endSummary.textContent = "You collected every word in " + theme.name + "!";
+        setTimeout(() => speak("Amazing! You completed the " + theme.name + " world!"), 600);
+        // Extra confetti burst for world complete
+        setTimeout(makeConfetti, 400);
+      } else {
+        endScreen.classList.remove("world-complete");
+        document.querySelector("#endScreen .end-headline").textContent = "All done!";
+        endSummary.textContent = sessionWordCount === 1
+          ? "You spelled 1 word this time!"
+          : "You spelled " + sessionWordCount + " words!";
+        setTimeout(() => speak("Amazing! You spelled all your words!"), 600);
+      }
 
       endGrid.innerHTML = "";
       currentWorldItems().forEach(({ word, reward }, i) => {
@@ -2241,7 +2428,6 @@ ON`;
       });
 
       endScreen.classList.add("active");
-      setTimeout(() => speak("Amazing! You spelled all your words!"), 600);
     }
 
     function updateWorldCount() {
