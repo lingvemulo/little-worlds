@@ -2165,6 +2165,7 @@ ON`;
       }
 
       currentLetterIndex = 0;
+      gameScreen.classList.add("active");
       loadWord();
       speakOrBeep("start");
       setTimeout(speakTargetLetter, 400);
