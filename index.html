@@ -655,22 +655,14 @@
     }
 
     .clear-world-button {
-      width: 100%;
-      padding: 12px 20px;
-      margin-top: 12px;
-      border: 2.5px solid rgba(220,38,38,0.45);
-      border-radius: 16px;
-      background: rgba(254,226,226,0.5);
-      color: #b91c1c;
-      font-size: clamp(0.95rem, 3.2vw, 1.05rem);
-      font-weight: 800;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      background: linear-gradient(135deg, #ff6b6b, #ee4444);
+      box-shadow: 0 9px 0 #aa1a1a, 0 16px 22px var(--soft-shadow);
+      color: #fff;
     }
 
-    .clear-world-button:hover {
-      background: rgba(254,202,202,0.7);
-      border-color: rgba(220,38,38,0.7);
+    .clear-world-button:active {
+      transform: translateY(7px);
+      box-shadow: 0 2px 0 #aa1a1a, 0 8px 14px var(--soft-shadow);
     }
 
     .hint-inline {
@@ -1719,7 +1711,7 @@
       <div id="themeToggles">
         <!-- Built by JS -->
       </div>
-      <button id="clearWorldButton" class="clear-world-button" type="button">Reset all worlds</button>
+      <button id="clearWorldButton" class="big-button clear-world-button" type="button">Reset all worlds</button>
 
       <button id="saveSettingsButton" class="big-button" type="button">Save</button>
       <div class="settings-notice">Worlds are saved on this device only. To save across all devices, create an account — coming soon!</div>
