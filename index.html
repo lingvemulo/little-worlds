@@ -2228,6 +2228,7 @@ ON`;
 
     function showWorld({ context = "game" } = {}) {
       worldContext = context;
+      hideAll();
       const theme = THEMES.find(t => t.id === currentThemeId);
       const items = currentWorldItems();
 
