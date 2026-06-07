@@ -655,14 +655,21 @@
     }
 
     .clear-world-button {
-      background: linear-gradient(135deg, #ff6b6b, #ee4444);
-      box-shadow: 0 9px 0 #aa1a1a, 0 16px 22px var(--soft-shadow);
-      color: #fff;
+      border: none;
+      background: none;
+      color: #b91c1c;
+      font-size: clamp(0.88rem, 3vw, 1rem);
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 6px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(254,226,226,0.6);
+      transition: background 0.15s ease;
     }
 
     .clear-world-button:active {
-      transform: translateY(7px);
-      box-shadow: 0 2px 0 #aa1a1a, 0 8px 14px var(--soft-shadow);
+      background: rgba(254,202,202,0.9);
     }
 
     .hint-inline {
@@ -1806,9 +1813,8 @@
       <div id="themeToggles">
         <!-- Built by JS -->
       </div>
-      <button id="clearWorldButton" class="big-button clear-world-button" type="button">Reset all worlds</button>
-
       <button id="saveSettingsButton" class="big-button" type="button">Save</button>
+      <button id="clearWorldButton" class="clear-world-button" type="button">Reset all worlds</button>
       <div class="settings-notice">Worlds are saved on this device only. To save across all devices, create an account — coming soon!</div>
       <div class="home-tip">Best mobile play: Share → Add to Home Screen</div>
     </section>
@@ -1905,6 +1911,19 @@
       <button id="endChooseWorldButton" class="big-button secondary-button" type="button">Choose a world</button>
     </div>
   </main>
+
+  <!-- CONFIRM MODAL -->
+  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <div class="modal-title" id="modalTitle">Reset all worlds?</div>
+      <div class="modal-body" id="modalBody">This cannot be undone.</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button class="modal-btn modal-btn-confirm" id="modalConfirm">Reset</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     /*
@@ -3409,18 +3428,5 @@ ON`;
       return Math.max(min, Math.min(max, value));
     }
   </script>
-
-  <!-- CONFIRM MODAL -->
-  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="modal-icon">⚠️</div>
-      <div class="modal-title" id="modalTitle">Reset all worlds?</div>
-      <div class="modal-body" id="modalBody">This cannot be undone.</div>
-      <div class="modal-buttons">
-        <button class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
-        <button class="modal-btn modal-btn-confirm" id="modalConfirm">Reset</button>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
