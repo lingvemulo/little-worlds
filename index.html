@@ -193,38 +193,55 @@
 
 
     /* SOUND TOGGLE */
-    .sound-toggle {
+    #rightControls {
       position: fixed;
       top: 14px;
       right: 14px;
       z-index: 200;
-      width: clamp(40px, 9vw, 50px);
-      height: clamp(40px, 9vw, 50px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-button {
+      width: clamp(42px, 10vw, 54px);
+      height: clamp(42px, 10vw, 54px);
       border: none;
       border-radius: 50%;
       background: rgba(255,255,255,0.82);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.13);
       cursor: pointer;
       display: grid;
       place-items: center;
       color: var(--dark);
-      transition: opacity 0.2s ease, background 0.2s ease;
       padding: 0;
+      flex-shrink: 0;
     }
 
-    .sound-toggle svg {
+    .icon-button svg {
       width: 52%;
       height: 52%;
       display: block;
     }
 
-    .sound-toggle.muted {
+    #soundToggle.muted {
       background: rgba(220,220,220,0.75);
       opacity: 0.65;
     }
 
-    .sound-toggle.below-gear {
-      top: calc(clamp(16px, 4vw, 28px) + clamp(42px, 10vw, 54px) + 18px);
+    #mainSettingsButton {
+      font-size: clamp(1.3rem, 4vw, 1.7rem);
+      transition: transform 0.3s ease;
+      display: none;
+    }
+
+    #mainSettingsButton.visible {
+      display: grid;
+    }
+
+    #mainSettingsButton:active {
+      transform: rotate(60deg);
     }
 
     /* WELCOME SCREEN */
@@ -318,25 +335,6 @@
       background-clip: text;
     }
 
-    .gear-button {
-      width: clamp(42px, 10vw, 54px);
-      height: clamp(42px, 10vw, 54px);
-      border: none;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.72);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      font-size: clamp(1.3rem, 4vw, 1.7rem);
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      color: var(--dark);
-      flex-shrink: 0;
-      transition: transform 0.3s ease;
-    }
-
-    .gear-button:active {
-      transform: rotate(60deg);
-    }
 
     /* THEME GRID */
     .theme-grid {
@@ -1589,10 +1587,13 @@
 </head>
 
 <body>
-  <!-- SOUND TOGGLE (fixed, always visible) -->
-  <button id="soundToggle" class="sound-toggle" aria-label="Toggle sound">
-    <!-- Icon swapped by JS -->
-  </button>
+  <!-- FIXED RIGHT CONTROLS -->
+  <div id="rightControls">
+    <button id="mainSettingsButton" class="icon-button" aria-label="Settings">&#9881;</button>
+    <button id="soundToggle" class="icon-button" aria-label="Toggle sound">
+      <!-- Icon swapped by JS -->
+    </button>
+  </div>
 
   <!-- WELCOME SCREEN (first visit only) -->
   <main id="welcomeScreen" class="screen">
@@ -1608,7 +1609,6 @@
   <main id="mainScreen" class="screen active">
     <div class="main-header">
       <h1 id="mainTitle" class="main-title">Little Worlds</h1>
-      <button id="mainSettingsButton" class="gear-button" aria-label="Settings">&#9881;</button>
     </div>
     <div id="themeGrid" class="theme-grid">
       <!-- Built by JS -->
@@ -2226,7 +2226,7 @@ ON`;
     function hideAll() {
       [welcomeScreen, mainScreen, settingsScreen, gameScreen, rewardScreen, phraseScreen, worldScreen, endScreen]
         .forEach(s => s.classList.remove("active"));
-      document.getElementById("soundToggle").classList.remove("below-gear");
+      document.getElementById("mainSettingsButton").classList.remove("visible");
     }
 
     function showMain() {
@@ -2235,7 +2235,7 @@ ON`;
       mainTitle.textContent = name ? name + "'s Worlds" : "Little Worlds";
       buildThemeGrid();
       mainScreen.classList.add("active");
-      document.getElementById("soundToggle").classList.add("below-gear");
+      document.getElementById("mainSettingsButton").classList.add("visible");
     }
 
     function themeTotal(theme) {
