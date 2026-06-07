@@ -681,6 +681,101 @@
       text-transform: uppercase;
     }
 
+    /* CONFIRM MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(39,48,67,0.55);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,249,232,0.96));
+      border: 5px solid rgba(255,255,255,1);
+      border-radius: 32px;
+      box-shadow: 0 20px 50px rgba(39,48,67,0.28);
+      padding: clamp(24px, 6vw, 40px);
+      width: min(420px, 100%);
+      text-align: center;
+      transform: scale(0.92);
+      transition: transform 0.18s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      font-size: 2.8rem;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+      font-weight: 900;
+      margin: 0 0 8px;
+      color: var(--dark);
+    }
+
+    .modal-body {
+      font-size: clamp(0.9rem, 3.2vw, 1rem);
+      font-weight: 700;
+      color: var(--dark);
+      opacity: 0.65;
+      margin: 0 0 24px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 14px 12px;
+      border: none;
+      border-radius: 999px;
+      font-size: clamp(1rem, 3.5vw, 1.15rem);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .modal-btn:active {
+      transform: translateY(3px);
+    }
+
+    .modal-btn-cancel {
+      background: rgba(39,48,67,0.1);
+      color: var(--dark);
+      box-shadow: 0 4px 0 rgba(39,48,67,0.15);
+    }
+
+    .modal-btn-confirm {
+      background: linear-gradient(135deg, #ff6b6b, #ee4444);
+      color: #fff;
+      box-shadow: 0 6px 0 #aa1a1a;
+    }
+
+    .modal-btn-confirm:active {
+      box-shadow: 0 2px 0 #aa1a1a;
+    }
+
     .settings-notice {
       margin: 14px auto 0;
       max-width: 580px;
@@ -2411,13 +2506,45 @@ ON`;
       showMain();
     });
 
+    // In-app confirm modal
+    const confirmModal  = document.getElementById("confirmModal");
+    const modalTitle    = document.getElementById("modalTitle");
+    const modalBody     = document.getElementById("modalBody");
+    const modalCancel   = document.getElementById("modalCancel");
+    const modalConfirm  = document.getElementById("modalConfirm");
+    let modalCallback   = null;
+
+    function showConfirm(title, body, onConfirm) {
+      modalTitle.textContent = title;
+      modalBody.textContent  = body;
+      modalCallback = onConfirm;
+      confirmModal.classList.add("active");
+    }
+
+    function closeModal() {
+      confirmModal.classList.remove("active");
+      modalCallback = null;
+    }
+
+    modalCancel.addEventListener("click", closeModal);
+    confirmModal.addEventListener("click", e => { if (e.target === confirmModal) closeModal(); });
+
+    modalConfirm.addEventListener("click", () => {
+      if (modalCallback) modalCallback();
+      closeModal();
+    });
+
     document.getElementById("clearWorldButton").addEventListener("click", () => {
       const name = childNameInput.value.trim() || "this child";
-      if (confirm("Reset all of " + name + "'s worlds? This cannot be undone.")) {
-        clearAllWorlds();
-        saveWorlds();
-        buildThemeGrid();
-      }
+      showConfirm(
+        "Reset " + name + "'s worlds?",
+        "All collected words will be lost. This cannot be undone.",
+        () => {
+          clearAllWorlds();
+          saveWorlds();
+          buildThemeGrid();
+        }
+      );
     });
 
     /*
@@ -3282,5 +3409,18 @@ ON`;
       return Math.max(min, Math.min(max, value));
     }
   </script>
+
+  <!-- CONFIRM MODAL -->
+  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <div class="modal-title" id="modalTitle">Reset all worlds?</div>
+      <div class="modal-body" id="modalBody">This cannot be undone.</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="modalCancel">Cancel</button>
+        <button class="modal-btn modal-btn-confirm" id="modalConfirm">Reset</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
