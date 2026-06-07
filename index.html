@@ -1995,7 +1995,7 @@ ON`;
           ${isComplete ? '<div class="theme-card-complete-badge">Complete!</div>' : ''}
           <img class="theme-card-img" src="${OPENMOJI_BASE}${theme.heroHex}.svg" alt="${theme.name}">
           <div class="theme-card-name">${theme.name}</div>
-          <div class="theme-card-count">${collected === 0 ? "Start spelling!" : collected + " / " + total + " words"}</div>
+          <div class="theme-card-count">${collected === 0 ? "Start spelling!" : collected + " of " + total + " words found"}</div>
           <div class="theme-progress-bar">
             <div class="theme-progress-fill" style="width:${pct}%"></div>
           </div>
