@@ -204,18 +204,23 @@
       border-radius: 50%;
       background: rgba(255,255,255,0.82);
       box-shadow: 0 4px 12px rgba(0,0,0,0.14);
-      font-size: clamp(1.1rem, 3.5vw, 1.4rem);
       cursor: pointer;
       display: grid;
       place-items: center;
       color: var(--dark);
-      font-weight: 900;
       transition: opacity 0.2s ease, background 0.2s ease;
+      padding: 0;
+    }
+
+    .sound-toggle svg {
+      width: 52%;
+      height: 52%;
+      display: block;
     }
 
     .sound-toggle.muted {
-      background: rgba(200,200,200,0.7);
-      opacity: 0.55;
+      background: rgba(220,220,220,0.75);
+      opacity: 0.65;
     }
 
     /* WELCOME SCREEN */
@@ -1582,7 +1587,7 @@
 <body>
   <!-- SOUND TOGGLE (fixed, always visible) -->
   <button id="soundToggle" class="sound-toggle" aria-label="Toggle sound">
-    <span id="soundIcon">&#9834;</span>
+    <!-- Icon swapped by JS -->
   </button>
 
   <!-- WELCOME SCREEN (first visit only) -->
@@ -2967,16 +2972,31 @@ ON`;
     */
     let soundEnabled = localStorage.getItem("littleWorlds_sound") !== "off";
 
+    const SVG_SOUND_ON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>`;
+
+    const SVG_SOUND_OFF = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>`;
+
     function updateSoundToggle() {
       const btn = document.getElementById("soundToggle");
-      const icon = document.getElementById("soundIcon");
       if (soundEnabled) {
         btn.classList.remove("muted");
-        icon.textContent = "♪";
+        btn.innerHTML = SVG_SOUND_ON;
         btn.setAttribute("aria-label", "Sound on — tap to mute");
       } else {
         btn.classList.add("muted");
-        icon.textContent = "✕";
+        btn.innerHTML = SVG_SOUND_OFF;
         btn.setAttribute("aria-label", "Sound off — tap to unmute");
       }
     }
