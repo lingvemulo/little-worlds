@@ -763,6 +763,114 @@
       flex-shrink: 0;
     }
 
+    /* END OF SESSION SCREEN */
+    #endScreen.active {
+      justify-content: flex-start;
+      padding-top: max(14px, calc(50vh - 420px));
+      padding-bottom: 24px;
+      background:
+        radial-gradient(ellipse at 20% 10%,  rgba(255,216,92, 0.55) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 15%,  rgba(138,242,123,0.50) 0%, transparent 40%),
+        radial-gradient(ellipse at 75% 85%,  rgba(107,220,255,0.50) 0%, transparent 45%),
+        radial-gradient(ellipse at 10% 80%,  rgba(255,111,177,0.45) 0%, transparent 40%),
+        linear-gradient(160deg, #fffbe8 0%, #e8fff0 50%, #e8f8ff 100%);
+    }
+
+    .end-card {
+      width: min(720px, 94vw);
+      background: rgba(255,255,255,0.88);
+      border: 6px solid #fff;
+      border-radius: 40px;
+      box-shadow: 0 0 0 10px rgba(255,255,255,0.35), 0 20px 50px rgba(0,0,0,0.14);
+      padding: clamp(20px, 5vw, 44px);
+      text-align: center;
+      position: relative;
+    }
+
+    .end-headline {
+      font-size: clamp(2.4rem, 10vw, 4.5rem);
+      font-weight: 1000;
+      line-height: 1;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffd85c, #ff6fb1, #6bdcff, #8af27b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .end-summary {
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      font-weight: 900;
+      opacity: 0.7;
+      margin-bottom: 16px;
+    }
+
+    /* Compact grid — shows all earned items */
+    .end-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(clamp(68px, 16vw, 96px), 1fr));
+      gap: clamp(8px, 2vw, 14px);
+      margin-bottom: 20px;
+      max-height: 44vh;
+      overflow-y: auto;
+    }
+
+    .end-grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.85);
+      border: 3px solid rgba(255,255,255,0.95);
+      border-radius: 18px;
+      padding: 8px 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.09);
+      animation: worldItemIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .end-grid-item img {
+      width: clamp(38px, 10vw, 58px);
+      height: clamp(38px, 10vw, 58px);
+      object-fit: contain;
+    }
+
+    .end-grid-item span {
+      font-size: clamp(0.65rem, 2.5vw, 0.82rem);
+      font-weight: 1000;
+      letter-spacing: 0.03em;
+    }
+
+    .end-play-button {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+    }
+
+    /* Reuse sparkle styles from reward screen */
+    .end-sparkles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 40px;
+    }
+
+    .end-sparkles span {
+      position: absolute;
+      border-radius: 50%;
+      animation: sparklePop 2s ease-out both infinite;
+    }
+
+    .end-sparkles span:nth-child(1)  { width:16px;height:16px;background:var(--yellow); top:5%;  left:8%;  animation-delay:0s;    }
+    .end-sparkles span:nth-child(2)  { width:11px;height:11px;background:var(--pink);   top:8%;  right:10%;animation-delay:0.4s; }
+    .end-sparkles span:nth-child(3)  { width:20px;height:20px;background:var(--blue);   top:15%; left:3%;  animation-delay:0.8s; }
+    .end-sparkles span:nth-child(4)  { width:13px;height:13px;background:var(--green);  top:4%;  right:5%; animation-delay:0.2s; }
+    .end-sparkles span:nth-child(5)  { width:9px; height:9px; background:var(--purple); bottom:18%;left:6%; animation-delay:0.6s; }
+    .end-sparkles span:nth-child(6)  { width:17px;height:17px;background:var(--orange); bottom:14%;right:8%;animation-delay:1s;  }
+    .end-sparkles span:nth-child(7)  { width:11px;height:11px;background:var(--yellow); bottom:8%;left:14%;animation-delay:0.3s; }
+    .end-sparkles span:nth-child(8)  { width:15px;height:15px;background:var(--pink);   bottom:6%;right:18%;animation-delay:0.7s;}
+
     @keyframes worldItemIn {
       0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
       70%  { transform: scale(1.1) rotate(3deg);  opacity: 1; }
@@ -1192,6 +1300,21 @@
     </div>
   </main>
 
+  <!-- END OF SESSION SCREEN -->
+  <main id="endScreen" class="screen">
+    <div class="end-card">
+      <div class="end-sparkles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="end-headline">All done!</div>
+      <div id="endSummary" class="end-summary"></div>
+      <div id="endGrid" class="end-grid"></div>
+      <button id="playAgainEndButton" class="big-button end-play-button" type="button">Play again!</button>
+      <button id="endChangeWordsButton" class="big-button secondary-button" type="button">Change words</button>
+    </div>
+  </main>
+
   <script>
     /*
       GAME SETTINGS
@@ -1373,6 +1496,7 @@ ON`;
     let score = 0;
     let unlockedItems = [];   // { word, reward } objects earned this session
     let worldOpenedFromReward = false;
+    let sessionComplete = false;
 
     /*
       PERSISTENCE
@@ -1449,6 +1573,11 @@ ON`;
     const worldGrid = document.getElementById("worldGrid");
     const worldWordCount = document.getElementById("worldWordCount");
     const keepPlayingButton = document.getElementById("keepPlayingButton");
+    const endScreen = document.getElementById("endScreen");
+    const endGrid = document.getElementById("endGrid");
+    const endSummary = document.getElementById("endSummary");
+    const playAgainEndButton = document.getElementById("playAgainEndButton");
+    const endChangeWordsButton = document.getElementById("endChangeWordsButton");
 
     /*
       START GAME
@@ -1488,6 +1617,7 @@ ON`;
       currentWordIndex = 0;
       currentLetterIndex = 0;
       score = 0;
+      sessionComplete = false;
 
       // Restore this child's saved world, or start fresh
       const hadSavedWorld = loadWorld();
@@ -1524,10 +1654,35 @@ ON`;
       worldScreen.classList.remove("active");
       if (worldOpenedFromReward) {
         worldOpenedFromReward = false;
-        goToNextWord();
+        if (sessionComplete) {
+          showEndScreen();
+        } else {
+          goToNextWord();
+        }
       } else {
         gameScreen.classList.add("active");
       }
+    });
+
+    playAgainEndButton.addEventListener("click", () => {
+      endScreen.classList.remove("active");
+      sessionComplete = false;
+      // Reshuffle and restart with the same word set
+      words = shuffle(words);
+      currentWordIndex = 0;
+      currentLetterIndex = 0;
+      score = 0;
+      updateScore();
+      showGame();
+      loadWord();
+      speakOrBeep("start");
+      setTimeout(speakTargetLetter, 400);
+    });
+
+    endChangeWordsButton.addEventListener("click", () => {
+      endScreen.classList.remove("active");
+      sessionComplete = false;
+      setupScreen.classList.add("active");
     });
 
     repeatButton.addEventListener("click", () => {
@@ -1551,6 +1706,8 @@ ON`;
       gameScreen.classList.remove("active");
       rewardScreen.classList.remove("active");
       worldScreen.classList.remove("active");
+      endScreen.classList.remove("active");
+      sessionComplete = false;
       setupScreen.classList.add("active");
     });
 
@@ -1732,6 +1889,7 @@ ON`;
     function finishWord() {
       const word = getCurrentWord();
       const reward = getReward(word);
+      sessionComplete = (currentWordIndex >= words.length - 1);
 
       speakOrBeep("win");
       unlockItem(word);
@@ -1793,6 +1951,38 @@ ON`;
       unlockedItems.push({ word, reward });
       updateWorldCount();
       saveWorld();
+    }
+
+    function showEndScreen() {
+      makeConfetti();
+      speakOrBeep("win");
+
+      const sessionWords = words.length;
+      endSummary.textContent = sessionWords === 1
+        ? "You spelled 1 word this time!"
+        : "You spelled " + sessionWords + " words!";
+
+      endGrid.innerHTML = "";
+      unlockedItems.forEach(({ word, reward }, i) => {
+        const item = document.createElement("div");
+        item.className = "end-grid-item";
+        item.style.animationDelay = (i * 0.04).toFixed(2) + "s";
+
+        const img = document.createElement("img");
+        img.src = `${OPENMOJI_BASE}${reward.hex}.svg`;
+        img.alt = reward.label;
+
+        const label = document.createElement("span");
+        label.textContent = word;
+
+        item.appendChild(img);
+        item.appendChild(label);
+        item.addEventListener("click", () => { speakOrBeep("correct"); speak(word); });
+        endGrid.appendChild(item);
+      });
+
+      endScreen.classList.add("active");
+      setTimeout(() => speak("Amazing! You spelled all your words!"), 600);
     }
 
     function updateWorldCount() {
