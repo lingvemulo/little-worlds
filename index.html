@@ -192,6 +192,32 @@
     }
 
 
+    /* SOUND TOGGLE */
+    .sound-toggle {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 200;
+      width: clamp(40px, 9vw, 50px);
+      height: clamp(40px, 9vw, 50px);
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+      font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--dark);
+      font-weight: 900;
+      transition: opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .sound-toggle.muted {
+      background: rgba(200,200,200,0.7);
+      opacity: 0.55;
+    }
+
     /* WELCOME SCREEN */
     #welcomeScreen.active {
       justify-content: center;
@@ -1396,6 +1422,11 @@
 </head>
 
 <body>
+  <!-- SOUND TOGGLE (fixed, always visible) -->
+  <button id="soundToggle" class="sound-toggle" aria-label="Toggle sound">
+    <span id="soundIcon">&#9834;</span>
+  </button>
+
   <!-- WELCOME SCREEN (first visit only) -->
   <main id="welcomeScreen" class="screen">
     <div class="welcome-card">
@@ -2546,6 +2577,33 @@ ON`;
 
 
     /*
+      SOUND TOGGLE
+    */
+    let soundEnabled = localStorage.getItem("littleWorlds_sound") !== "off";
+
+    function updateSoundToggle() {
+      const btn = document.getElementById("soundToggle");
+      const icon = document.getElementById("soundIcon");
+      if (soundEnabled) {
+        btn.classList.remove("muted");
+        icon.textContent = "♪";
+        btn.setAttribute("aria-label", "Sound on — tap to mute");
+      } else {
+        btn.classList.add("muted");
+        icon.textContent = "✕";
+        btn.setAttribute("aria-label", "Sound off — tap to unmute");
+      }
+    }
+
+    document.getElementById("soundToggle").addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem("littleWorlds_sound", soundEnabled ? "on" : "off");
+      updateSoundToggle();
+    });
+
+    updateSoundToggle();
+
+    /*
       SPOKEN LETTER PROMPTS
       ---------------------
       Uses the browser's built-in speech synthesis.
@@ -2566,7 +2624,7 @@ ON`;
     }
 
     function speak(text) {
-      if (!speechEnabled) return;
+      if (!speechEnabled || !soundEnabled) return;
       if (!("speechSynthesis" in window)) return;
 
       try {
@@ -2599,6 +2657,7 @@ ON`;
     let audioContext;
 
     function speakOrBeep(type) {
+      if (!soundEnabled) return;
       try {
         if (!audioContext) {
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
