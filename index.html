@@ -991,6 +991,134 @@
       flex-shrink: 0;
     }
 
+    /* PHRASE REWARD SCREEN */
+    #phraseScreen.active {
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(ellipse at 10% 20%, rgba(138,242,123,0.45) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 80%, rgba(107,220,255,0.45) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,216,92,0.25) 0%, transparent 60%),
+        linear-gradient(160deg, #f0fff4 0%, #e8f8ff 50%, #fffbe8 100%);
+    }
+
+    .phrase-card {
+      width: min(680px, 94vw);
+      background: rgba(255,255,255,0.9);
+      border: 6px solid #fff;
+      border-radius: 40px;
+      box-shadow: 0 0 0 8px rgba(255,255,255,0.3), 0 20px 50px rgba(0,0,0,0.14);
+      padding: clamp(24px, 6vw, 48px);
+      text-align: center;
+      position: relative;
+    }
+
+    .phrase-headline {
+      font-size: clamp(1.4rem, 6vw, 2.2rem);
+      font-weight: 900;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #22c55e, #6bdcff, #b88cff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .phrase-display {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(6px, 2vw, 10px);
+      margin-bottom: 24px;
+      min-height: 60px;
+      align-items: center;
+    }
+
+    .phrase-word {
+      font-size: clamp(1.5rem, 6.5vw, 2.8rem);
+      font-weight: 900;
+      padding: clamp(6px, 2vw, 12px) clamp(10px, 3vw, 18px);
+      border-radius: 18px;
+      border: 4px solid rgba(255,255,255,0.9);
+      box-shadow: 0 6px 0 rgba(0,0,0,0.09), 0 10px 18px rgba(0,0,0,0.08);
+      animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+      line-height: 1;
+    }
+
+    .phrase-word.collected {
+      /* word the child earned */
+      color: var(--dark);
+    }
+
+    .phrase-word.filler {
+      /* grammatical words not in require list */
+      background: rgba(39,48,67,0.06) !important;
+      color: rgba(39,48,67,0.55);
+      box-shadow: none;
+      border-color: rgba(39,48,67,0.08);
+    }
+
+    .phrase-next-btn {
+      width: 100%;
+      font-size: clamp(1.2rem, 5vw, 1.6rem);
+    }
+
+    /* Reuse sparkle animation */
+    .phrase-sparkles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 40px;
+    }
+    .phrase-sparkles span {
+      position: absolute;
+      border-radius: 50%;
+      animation: sparklePop 1.8s ease-out both infinite;
+    }
+    .phrase-sparkles span:nth-child(1) { width:14px;height:14px;background:var(--green); top:8%;  left:10%; animation-delay:0s;    }
+    .phrase-sparkles span:nth-child(2) { width:10px;height:10px;background:var(--blue);  top:10%; right:12%;animation-delay:0.3s; }
+    .phrase-sparkles span:nth-child(3) { width:16px;height:16px;background:var(--yellow);bottom:16%;left:8%;animation-delay:0.6s; }
+    .phrase-sparkles span:nth-child(4) { width:12px;height:12px;background:var(--purple);bottom:10%;right:10%;animation-delay:0.9s;}
+
+    /* WORLD SCREEN — sentences */
+    .world-sentences {
+      width: 100%;
+      padding: 0 clamp(14px,4vw,28px) 10px;
+    }
+
+    .world-sentences-title {
+      font-size: clamp(0.95rem, 3.8vw, 1.2rem);
+      font-weight: 900;
+      opacity: 0.65;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .world-sentence-item {
+      background: rgba(255,255,255,0.75);
+      border: 3px solid rgba(255,255,255,0.95);
+      border-radius: 18px;
+      padding: clamp(8px,2.5vw,14px) clamp(12px,3vw,18px);
+      margin-bottom: 8px;
+      font-size: clamp(1.05rem, 4.2vw, 1.4rem);
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: worldItemIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      cursor: pointer;
+    }
+
+    .world-sentence-item::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
     /* END OF SESSION SCREEN */
     #endScreen.active {
       justify-content: flex-start;
@@ -1562,8 +1690,21 @@
       </div>
     </div>
     <div id="worldGrid" class="world-grid"></div>
+    <div id="worldSentences" class="world-sentences"></div>
     <div class="world-footer">
       <button id="keepPlayingButton" class="big-button" type="button">Keep playing!</button>
+    </div>
+  </main>
+
+  <!-- PHRASE REWARD SCREEN -->
+  <main id="phraseScreen" class="screen">
+    <div class="phrase-card">
+      <div class="phrase-sparkles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="phrase-headline">New phrase!</div>
+      <div id="phraseDisplay" class="phrase-display"></div>
+      <button id="phraseNextButton" class="big-button phrase-next-btn" type="button">Keep going!</button>
     </div>
   </main>
 
@@ -1696,12 +1837,23 @@
       AT:    { hex: "1F4CD", label: "At",    category: "sightwords" },
       DO:    { hex: "1F3AF", label: "Do",    category: "sightwords" },
       WE:    { hex: "1F91D", label: "We",    category: "sightwords" },
+      // New sight words for sentence building
+      I:     { hex: "1F9D1", label: "I",     category: "sightwords" },
+      A:     { hex: "1F170", label: "A",     category: "sightwords" },
+      TO:    { hex: "27A1",  label: "To",    category: "sightwords" },
+      AND:   { hex: "2795",  label: "And",   category: "sightwords" },
+      CAN:   { hex: "1F4AA", label: "Can",   category: "sightwords" },
+      NOT:   { hex: "274C",  label: "Not",   category: "sightwords" },
+      HE:    { hex: "1F9D4", label: "He",    category: "sightwords" },
+      SHE:   { hex: "1F9D1-200D-2640-FE0F", label: "She", category: "sightwords" },
+      BIG:   { hex: "1F9BE", label: "Big",   category: "sightwords" },
+      RUN:   { hex: "1F3C3", label: "Run",   category: "sightwords" },
     };
 
     /*
       SIGHT WORDS — added to every theme
     */
-    const SIGHT_WORDS = ["ME", "GO", "SEE", "IN", "ON", "MY", "THE", "IT", "UP", "IS"];
+    const SIGHT_WORDS = ["ME", "GO", "SEE", "IN", "ON", "MY", "THE", "IT", "UP", "IS", "I", "A", "TO", "AND", "CAN"];
 
     /*
       THEMES
@@ -1747,6 +1899,58 @@
         accent: "#8af27b",
       },
     ];
+
+    /*
+      SENTENCES
+      ---------
+      `requires` lists the words the child must have collected (use "{name}" for child's name).
+      `template`  is the display sentence — may include grammatical words not in requires.
+      Words in requires are highlighted; other words shown faded.
+    */
+    const SENTENCES = {
+      vehicles: [
+        { requires: ["I", "SEE", "CAR"],          template: "I see a car!" },
+        { requires: ["{name}", "IN", "VAN"],       template: "{name} is in the van!" },
+        { requires: ["GO", "ON", "BUS"],           template: "Go on the bus!" },
+        { requires: ["MY", "BIKE"],                template: "My bike!" },
+        { requires: ["{name}", "ON", "JET"],       template: "{name} is on the jet!" },
+        { requires: ["I", "SEE", "SHIP"],          template: "I see a ship!" },
+        { requires: ["GO", "IN", "CAB"],           template: "Go in the cab!" },
+        { requires: ["I", "SEE", "TRAM"],          template: "I see a tram!" },
+        { requires: ["MY", "JEEP", "AND", "CAR"],  template: "My jeep and my car!" },
+      ],
+      magic: [
+        { requires: ["I", "SEE", "STAR"],            template: "I see a star!" },
+        { requires: ["MY", "MOON"],                  template: "My moon!" },
+        { requires: ["{name}", "ON", "MOON"],        template: "{name} is on the moon!" },
+        { requires: ["SEE", "MY", "GEM"],            template: "See my gem!" },
+        { requires: ["I", "SEE", "ROSE"],            template: "I see a rose!" },
+        { requires: ["MY", "WAND", "AND", "BELL"],   template: "My wand and my bell!" },
+        { requires: ["THE", "ORB", "IS", "UP"],      template: "The orb is up!" },
+        { requires: ["{name}", "AND", "THE", "STAR"], template: "{name} and the star!" },
+      ],
+      farm: [
+        { requires: ["I", "SEE", "COW"],                  template: "I see a cow!" },
+        { requires: ["MY", "CAT"],                         template: "My cat!" },
+        { requires: ["SEE", "THE", "DUCK"],                template: "See the duck!" },
+        { requires: ["{name}", "AND", "DOG"],              template: "{name} and the dog!" },
+        { requires: ["THE", "HEN", "IS", "ON", "HAY"],    template: "The hen is on the hay!" },
+        { requires: ["I", "SEE", "GOAT"],                  template: "I see a goat!" },
+        { requires: ["MY", "LAMB", "AND", "PIG"],          template: "My lamb and my pig!" },
+        { requires: ["{name}", "SEE", "THE", "EGG"],       template: "{name} sees the egg!" },
+      ],
+      animals: [
+        { requires: ["I", "SEE", "FOX"],             template: "I see a fox!" },
+        { requires: ["MY", "OWL"],                   template: "My owl!" },
+        { requires: ["I", "SEE", "BEAR"],            template: "I see a bear!" },
+        { requires: ["GO", "SEE", "THE", "LION"],    template: "Go see the lion!" },
+        { requires: ["{name}", "AND", "WOLF"],        template: "{name} and the wolf!" },
+        { requires: ["I", "SEE", "BEE"],             template: "I see a bee!" },
+        { requires: ["I", "SEE", "FROG"],            template: "I see a frog!" },
+        { requires: ["THE", "DEER", "AND", "BIRD"],  template: "The deer and the bird!" },
+        { requires: ["{name}", "AND", "THE", "OWL"], template: "{name} and the owl!" },
+      ],
+    };
 
     // Neutral person icons — different skin tones, non-gendered (OpenMoji 🧑)
     const PERSON_ICONS = [
@@ -1841,9 +2045,17 @@ ON`;
     let score = 0;
     let currentThemeId = null;      // active theme id
     let allWorlds = {};             // { vehicles: [...], magic: [...], ... }
+    let allSentences = {};          // { vehicles: ["template1",...], ... } — unlocked sentence templates
     let worldContext = "main";      // "main" | "game" | "reward"
     let sessionComplete = false;
     let sessionWordCount = 0;
+    let pendingPhrases = [];        // newly unlocked phrases to show after reward screen
+
+    // Convert ALL-CAPS word to Title Case so TTS pronounces it as a word, not an acronym
+    function toSpeakable(word) {
+      if (!word) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }
 
     /*
       PERSISTENCE
@@ -1884,6 +2096,7 @@ ON`;
       try {
         localStorage.setItem(childKey(), JSON.stringify({
           worlds: allWorlds,
+          sentences: allSentences,
           nameWords: [...nameWords],
           nameIconIndex,
         }));
@@ -1896,6 +2109,7 @@ ON`;
         if (!raw) return;
         const d = JSON.parse(raw);
         allWorlds     = d.worlds        || {};
+        allSentences  = d.sentences     || {};
         nameWords     = new Set(d.nameWords || []);
         nameIconIndex = d.nameIconIndex  || 0;
       } catch (e) {}
@@ -1904,6 +2118,7 @@ ON`;
     function clearAllWorlds() {
       try { localStorage.removeItem(childKey()); } catch (e) {}
       allWorlds = {};
+      allSentences = {};
       nameWords = new Set();
       nameIconIndex = 0;
     }
@@ -1951,6 +2166,9 @@ ON`;
     const worldWordCount      = document.getElementById("worldWordCount");
     const worldBackButton     = document.getElementById("worldBackButton");
     const keepPlayingButton   = document.getElementById("keepPlayingButton");
+    const phraseScreen        = document.getElementById("phraseScreen");
+    const phraseDisplay       = document.getElementById("phraseDisplay");
+    const phraseNextButton    = document.getElementById("phraseNextButton");
     const endScreen           = document.getElementById("endScreen");
     const endGrid             = document.getElementById("endGrid");
     const endSummary          = document.getElementById("endSummary");
@@ -1997,7 +2215,7 @@ ON`;
       NAVIGATION HELPERS
     */
     function hideAll() {
-      [welcomeScreen, mainScreen, settingsScreen, gameScreen, rewardScreen, worldScreen, endScreen]
+      [welcomeScreen, mainScreen, settingsScreen, gameScreen, rewardScreen, phraseScreen, worldScreen, endScreen]
         .forEach(s => s.classList.remove("active"));
     }
 
@@ -2125,7 +2343,22 @@ ON`;
     */
     addToWorldButton.addEventListener("click", () => {
       rewardScreen.classList.remove("active");
-      showWorld({ context: "reward" });
+      if (pendingPhrases.length > 0) {
+        showPhraseScreen(pendingPhrases);
+        pendingPhrases = [];
+      } else {
+        showWorld({ context: "reward" });
+      }
+    });
+
+    phraseNextButton.addEventListener("click", () => {
+      phraseScreen.classList.remove("active");
+      const remaining = phraseNextButton._remainingPhrases || [];
+      if (remaining.length > 0) {
+        showPhraseScreen(remaining);
+      } else {
+        showWorld({ context: "reward" });
+      }
     });
 
     rewardPlayAgainButton.addEventListener("click", () => {
@@ -2402,7 +2635,7 @@ ON`;
         rewardLetters.appendChild(slot);
       });
 
-      speak(randomFrom(wordCompleteMessages).replace("{word}", word));
+      speak(randomFrom(wordCompleteMessages).replace("{word}", toSpeakable(word)));
       showReward();
     }
 
@@ -2437,17 +2670,94 @@ ON`;
       Each completed word unlocks the matching image for that word.
       The world panel fills up visibly so the child sees progress.
     */
+    /*
+      SENTENCE HELPERS
+    */
+    function getChildFirstName() {
+      const raw = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "");
+      return raw ? toSpeakable(raw) : "";
+    }
+
+    function resolveTemplate(template) {
+      return template.replace(/{name}/g, getChildFirstName());
+    }
+
+    function getUnlockedSentences(themeId) {
+      const collectedWords = new Set((allWorlds[themeId] || []).map(i => i.word.toUpperCase()));
+      const childName = childNameInput.value.trim().toUpperCase().replace(/[^A-Z]/g, "");
+      return (SENTENCES[themeId] || []).filter(s =>
+        s.requires.every(w => w === "{name}" ? !!childName : collectedWords.has(w))
+      );
+    }
+
+    function checkNewSentences(themeId) {
+      const allUnlocked = getUnlockedSentences(themeId);
+      const alreadySaved = new Set(allSentences[themeId] || []);
+      const newOnes = allUnlocked.filter(s => !alreadySaved.has(s.template));
+
+      if (newOnes.length > 0) {
+        if (!allSentences[themeId]) allSentences[themeId] = [];
+        newOnes.forEach(s => allSentences[themeId].push(s.template));
+        saveWorlds();
+      }
+      return newOnes;
+    }
+
     function unlockItem(word) {
       const reward = getReward(word);
       if (nameWords.has(word.toUpperCase())) nameIconIndex++;
       if (!allWorlds[currentThemeId]) allWorlds[currentThemeId] = [];
-      // Only add if not already collected
       if (!allWorlds[currentThemeId].find(i => i.word === word)) {
         allWorlds[currentThemeId].push({ word, reward });
       }
       sessionWordCount++;
       updateWorldCount();
+      // Check for newly unlocked sentences
+      pendingPhrases = checkNewSentences(currentThemeId);
       saveWorlds();
+    }
+
+    function showPhraseScreen(phrases) {
+      // Show the first newly unlocked phrase (queue the rest if multiple)
+      const phrase = phrases[0];
+      const resolvedText = resolveTemplate(phrase.template);
+      const requiredWords = new Set(phrase.requires.map(w =>
+        w === "{name}" ? getChildFirstName().toUpperCase() : w
+      ));
+
+      // Build word-by-word display
+      phraseDisplay.innerHTML = "";
+      const colors = [
+        "var(--yellow)", "var(--pink)", "var(--blue)",
+        "var(--green)", "var(--purple)", "var(--orange)"
+      ];
+      // Split template into displayable tokens (strip punctuation for matching)
+      const tokens = resolvedText.replace(/[!?.,]/g, "").split(/\s+/).filter(Boolean);
+      const punctuated = resolvedText.split(/\s+/).filter(Boolean);
+
+      punctuated.forEach((token, i) => {
+        const cleanToken = token.replace(/[!?.,]/g, "").toUpperCase();
+        const isCollected = requiredWords.has(cleanToken);
+        const span = document.createElement("span");
+        span.className = "phrase-word " + (isCollected ? "collected" : "filler");
+        if (isCollected) span.style.background = colors[i % colors.length];
+        span.textContent = token;
+        span.style.animationDelay = (i * 0.08) + "s";
+        phraseDisplay.appendChild(span);
+      });
+
+      // Speak the phrase
+      speak("New phrase! " + resolvedText);
+      speakOrBeep("win");
+
+      phraseScreen.classList.add("active");
+
+      // If multiple phrases unlocked, queue them (after this one closes)
+      if (phrases.length > 1) {
+        phraseNextButton._remainingPhrases = phrases.slice(1);
+      } else {
+        phraseNextButton._remainingPhrases = [];
+      }
     }
 
     function showEndScreen() {
@@ -2490,7 +2800,7 @@ ON`;
 
         item.appendChild(img);
         item.appendChild(label);
-        item.addEventListener("click", () => { speakOrBeep("correct"); speak(word); });
+        item.addEventListener("click", () => { speakOrBeep("correct"); speak(toSpeakable(word)); });
         endGrid.appendChild(item);
       });
 
@@ -2551,7 +2861,7 @@ ON`;
 
           item.appendChild(img);
           item.appendChild(label);
-          item.addEventListener("click", () => { speakOrBeep("correct"); speak(word); });
+          item.addEventListener("click", () => { speakOrBeep("correct"); speak(toSpeakable(word)); });
           worldGrid.appendChild(item);
         });
 
@@ -2565,6 +2875,31 @@ ON`;
 
       const n = items.length;
       worldWordCount.textContent = "";
+
+      // Sentences section
+      const worldSentences = document.getElementById("worldSentences");
+      if (worldSentences) {
+        worldSentences.innerHTML = "";
+        const savedTemplates = allSentences[currentThemeId] || [];
+        if (savedTemplates.length > 0) {
+          const title = document.createElement("div");
+          title.className = "world-sentences-title";
+          title.textContent = "Phrases you can read:";
+          worldSentences.appendChild(title);
+
+          savedTemplates.forEach((template, i) => {
+            const sentenceEl = document.createElement("div");
+            sentenceEl.className = "world-sentence-item";
+            sentenceEl.textContent = resolveTemplate(template);
+            sentenceEl.style.animationDelay = (i * 0.06) + "s";
+            sentenceEl.addEventListener("click", () => {
+              speak(resolveTemplate(template));
+              speakOrBeep("correct");
+            });
+            worldSentences.appendChild(sentenceEl);
+          });
+        }
+      }
 
       // Progress bar
       const total = theme ? themeTotal(theme) : 0;
