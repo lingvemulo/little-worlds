@@ -1759,6 +1759,32 @@
       100% { transform: scale(1)    rotate(0);      opacity: 1; }
     }
 
+    /* FAMILY ACCOUNT (Settings) */
+    #accountSection { text-align: left; margin-bottom: 14px; }
+    .account-hint { margin: 0 0 10px; }
+    .account-button { margin-top: 10px; }
+    .account-message {
+      min-height: 0;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-top: 8px;
+      color: #d33;
+    }
+    .account-message.info { color: #0a7f5b; }
+    .account-link-button {
+      display: block;
+      margin: 8px auto 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #3a7bd5;
+      text-decoration: underline;
+    }
+    .sync-status { margin-bottom: 6px; }
+
     /* Display font for big celebratory text — Fredoka One is single-weight,
        so weight is pinned to 400 to avoid faux-bold distortion */
     h1, .reward-headline, .phrase-headline, .end-headline {
@@ -1823,7 +1849,25 @@
       </div>
       <button id="saveSettingsButton" class="big-button" type="button">Save</button>
       <button id="clearWorldButton" class="clear-world-button" type="button">Reset all worlds</button>
-      <div class="settings-notice">Worlds are saved on this device only. To save across all devices, create an account — coming soon!</div>
+      <div class="settings-section-label" id="accountSectionLabel">Family account</div>
+      <div id="accountSection">
+        <div id="accountSignedOut">
+          <p class="hint account-hint">Create a free account to save worlds across all your devices. One account per family.</p>
+          <label class="adult-label vehicle-label" for="accountEmail">Email</label>
+          <input id="accountEmail" type="email" class="name-input" autocomplete="email" placeholder="you@example.com" />
+          <label class="adult-label vehicle-label" for="accountPassword" style="margin-top:10px;">Password</label>
+          <input id="accountPassword" type="password" class="name-input" autocomplete="current-password" placeholder="At least 6 characters" />
+          <div id="accountMessage" class="account-message" role="alert"></div>
+          <button id="signInButton" class="big-button account-button" type="button">Sign in</button>
+          <button id="createAccountButton" class="big-button secondary-button account-button" type="button">Create account</button>
+          <button id="forgotPasswordButton" class="account-link-button" type="button">Forgot password?</button>
+        </div>
+        <div id="accountSignedIn" style="display:none;">
+          <p class="hint" id="accountStatus"></p>
+          <div id="syncStatus" class="hint sync-status"></div>
+          <button id="signOutButton" class="big-button secondary-button account-button" type="button">Sign out</button>
+        </div>
+      </div>
       <div class="home-tip">Best mobile play: Share → Add to Home Screen</div>
     </section>
   </main>
@@ -1933,6 +1977,9 @@
     </div>
   </div>
 
+  <!-- Supabase client for the optional family account (cloud sync).
+       If this fails to load (offline), the game runs exactly as before on localStorage. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     /*
       GAME SETTINGS
@@ -2351,6 +2398,7 @@ ON`;
           knownThemes: THEMES.map(t => t.id),
         }));
       } catch (e) {}
+      scheduleCloudSync();
     }
 
     function loadSettings() {
@@ -2415,6 +2463,7 @@ ON`;
           nameIconIndex,
         }));
       } catch (e) {}
+      scheduleCloudSync();
     }
 
     function loadWorlds() {
@@ -2490,9 +2539,214 @@ ON`;
     const endChooseWorldButton = document.getElementById("endChooseWorldButton");
 
     /*
+      FAMILY ACCOUNT / CLOUD SYNC (Supabase)
+      --------------------------------------
+      Optional. localStorage stays the source of truth on-device and the
+      guest/offline experience is unchanged. When a parent signs in, worlds
+      are merged (union — nothing is ever lost) and mirrored to one row in
+      the lw_saves table, keyed by auth user id and protected by RLS.
+      If SUPABASE_ANON_KEY is not configured or the CDN script failed to
+      load, the whole Family account section hides itself.
+    */
+    const SUPABASE_URL = "https://npkjyyhjxjuhxxsvdqbf.supabase.co";
+    const SUPABASE_ANON_KEY = "PASTE_ANON_KEY_HERE";
+    const WORLD_PREFIX = "littleWorlds_worlds_";
+
+    let sbClient = null;
+    let cloudUser = null;
+    let cloudSyncTimer = null;
+
+    function cloudConfigured() {
+      return !!window.supabase && SUPABASE_ANON_KEY.indexOf("PASTE") === -1;
+    }
+
+    function setSyncStatus(text) {
+      const el = document.getElementById("syncStatus");
+      if (el) el.textContent = text || "";
+    }
+
+    function showAccountMessage(text, isInfo) {
+      const el = document.getElementById("accountMessage");
+      if (!el) return;
+      el.textContent = text || "";
+      el.classList.toggle("info", !!isInfo);
+    }
+
+    function renderAccountUI() {
+      const signedOut = document.getElementById("accountSignedOut");
+      const signedIn = document.getElementById("accountSignedIn");
+      const status = document.getElementById("accountStatus");
+      if (!signedOut || !signedIn) return;
+      signedOut.style.display = cloudUser ? "none" : "";
+      signedIn.style.display = cloudUser ? "" : "none";
+      if (cloudUser && status) status.textContent = "Signed in as " + (cloudUser.email || "your account");
+      if (!cloudUser) setSyncStatus("");
+    }
+
+    // All world saves on this device, keyed by child-name suffix
+    function collectLocalChildren() {
+      const children = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(WORLD_PREFIX)) continue;
+        try {
+          const d = JSON.parse(localStorage.getItem(key));
+          children[key.slice(WORLD_PREFIX.length)] = {
+            worlds: d.worlds || {},
+            sentences: d.sentences || {},
+            nameWords: d.nameWords || [],
+            nameIconIndex: d.nameIconIndex || 0,
+          };
+        } catch (e) {}
+      }
+      return children;
+    }
+
+    // Union merge — a child never loses collected words, whichever device they played on
+    function mergeChildSave(a, b) {
+      a = a || {}; b = b || {};
+      const out = { worlds: {}, sentences: {}, nameWords: [], nameIconIndex: 0 };
+      const themeIds = new Set([...Object.keys(a.worlds || {}), ...Object.keys(b.worlds || {})]);
+      themeIds.forEach(id => {
+        const seen = new Set();
+        out.worlds[id] = [...((a.worlds || {})[id] || []), ...((b.worlds || {})[id] || [])]
+          .filter(item => {
+            if (!item || !item.word || seen.has(item.word)) return false;
+            seen.add(item.word);
+            return true;
+          });
+      });
+      const sentenceThemes = new Set([...Object.keys(a.sentences || {}), ...Object.keys(b.sentences || {})]);
+      sentenceThemes.forEach(id => {
+        out.sentences[id] = [...new Set([...((a.sentences || {})[id] || []), ...((b.sentences || {})[id] || [])])];
+      });
+      out.nameWords = [...new Set([...(a.nameWords || []), ...(b.nameWords || [])])];
+      out.nameIconIndex = Math.max(a.nameIconIndex || 0, b.nameIconIndex || 0);
+      return out;
+    }
+
+    async function cloudSyncNow() {
+      if (!sbClient || !cloudUser) return;
+      setSyncStatus("Syncing…");
+      try {
+        const { data: rows, error } = await sbClient.from("lw_saves").select("data").eq("user_id", cloudUser.id);
+        if (error) throw error;
+        const cloud = (rows && rows[0] && rows[0].data) || {};
+
+        const localChildren = collectLocalChildren();
+        const names = new Set([...Object.keys(cloud.children || {}), ...Object.keys(localChildren)]);
+        const children = {};
+        names.forEach(n => { children[n] = mergeChildSave(localChildren[n], (cloud.children || {})[n]); });
+
+        // Settings: this device wins if it has any; otherwise adopt the cloud copy
+        let settings = null;
+        try { settings = JSON.parse(localStorage.getItem(SETTINGS_KEY)); } catch (e) {}
+        if (!settings) settings = cloud.settings || null;
+
+        // Mirror merged result back to this device, then refresh in-memory state
+        Object.entries(children).forEach(([n, c]) => {
+          try { localStorage.setItem(WORLD_PREFIX + n, JSON.stringify(c)); } catch (e) {}
+        });
+        if (settings) {
+          try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+          loadSettings();
+        }
+        loadWorlds();
+        updateWorldCount();
+
+        const { error: upsertError } = await sbClient.from("lw_saves").upsert({
+          user_id: cloudUser.id,
+          data: { settings, children },
+          updated_at: new Date().toISOString(),
+        });
+        if (upsertError) throw upsertError;
+        setSyncStatus("Saved to your account ✓");
+      } catch (e) {
+        setSyncStatus("Couldn't sync just now — your progress is safe on this device and will sync later.");
+      }
+    }
+
+    // Debounced push after local saves, so gameplay never waits on the network
+    function scheduleCloudSync() {
+      if (!sbClient || !cloudUser) return;
+      clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = setTimeout(cloudSyncNow, 2500);
+    }
+
+    function initCloud() {
+      const section = document.getElementById("accountSection");
+      const label = document.getElementById("accountSectionLabel");
+      if (!cloudConfigured()) {
+        if (section) section.style.display = "none";
+        if (label) label.style.display = "none";
+        return;
+      }
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      sbClient.auth.onAuthStateChange((event, session) => {
+        cloudUser = (session && session.user) || null;
+        renderAccountUI();
+        if (event === "SIGNED_IN") cloudSyncNow();
+        if (event === "PASSWORD_RECOVERY") {
+          const newPassword = window.prompt("Choose a new password (at least 6 characters):");
+          if (newPassword) {
+            sbClient.auth.updateUser({ password: newPassword })
+              .then(({ error }) => showAccountMessage(error ? error.message : "Password updated!", !error));
+          }
+        }
+      });
+
+      // Restore a persisted session on startup
+      sbClient.auth.getSession().then(({ data }) => {
+        cloudUser = (data.session && data.session.user) || null;
+        renderAccountUI();
+        if (cloudUser) cloudSyncNow();
+      });
+
+      const emailInput = document.getElementById("accountEmail");
+      const passwordInput = document.getElementById("accountPassword");
+
+      document.getElementById("signInButton").addEventListener("click", async () => {
+        showAccountMessage("");
+        const { error } = await sbClient.auth.signInWithPassword({
+          email: emailInput.value.trim(), password: passwordInput.value,
+        });
+        if (error) showAccountMessage(error.message);
+        else passwordInput.value = "";
+      });
+
+      document.getElementById("createAccountButton").addEventListener("click", async () => {
+        showAccountMessage("");
+        const { data, error } = await sbClient.auth.signUp({
+          email: emailInput.value.trim(),
+          password: passwordInput.value,
+          options: { emailRedirectTo: location.origin + location.pathname },
+        });
+        if (error) return showAccountMessage(error.message);
+        if (data.session) passwordInput.value = "";  // signed straight in (email confirmation off)
+        else showAccountMessage("Almost there — check your email to confirm your account, then sign in.", true);
+      });
+
+      document.getElementById("forgotPasswordButton").addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+        if (!email) return showAccountMessage("Type your email above first, then tap Forgot password.");
+        const { error } = await sbClient.auth.resetPasswordForEmail(email, {
+          redirectTo: location.origin + location.pathname,
+        });
+        showAccountMessage(error ? error.message : "Password reset email sent — check your inbox.", !error);
+      });
+
+      document.getElementById("signOutButton").addEventListener("click", async () => {
+        await sbClient.auth.signOut();
+        // Worlds stay on this device — signing out only stops cloud syncing
+      });
+    }
+
+    /*
       APP INIT — runs on page load
     */
     (function init() {
+      initCloud();
       // Build welcome screen theme images
       THEMES.forEach((theme, i) => {
         const img = document.createElement("img");
