@@ -2019,6 +2019,20 @@
       ANT:   { hex: "1F41C", label: "Ant",   category: "animals" },
       DEER:  { hex: "1F98C", label: "Deer",  category: "animals" },
       WOLF:  { hex: "1F43A", label: "Wolf",  category: "animals" },
+      // Space
+      UFO:   { hex: "1F6F8", label: "UFO",   category: "space" },
+      SKY:   { hex: "1F30C", label: "Sky",   category: "space" },
+      ROCK:  { hex: "1FAA8", label: "Rock",  category: "space" },
+      BOT:   { hex: "1F916", label: "Bot",   category: "space" },
+      DISH:  { hex: "1F4E1", label: "Dish",  category: "space" },
+      ZOOM:  { hex: "1F680", label: "Zoom!", category: "space" },
+      // Ocean
+      CRAB:  { hex: "1F980", label: "Crab",  category: "ocean" },
+      WAVE:  { hex: "1F30A", label: "Wave",  category: "ocean" },
+      SEAL:  { hex: "1F9AD", label: "Seal",  category: "ocean" },
+      CLAM:  { hex: "1F9AA", label: "Clam",  category: "ocean" },
+      SAND:  { hex: "1F3D6", label: "Sand",  category: "ocean" },
+      REEF:  { hex: "1FAB8", label: "Reef",  category: "ocean" },
       // Objects
       BALL:  { hex: "26BD",  label: "Ball",  category: "objects" },
       BOOK:  { hex: "1F4DA", label: "Book",  category: "objects" },
@@ -2108,6 +2122,24 @@
         worldBg: "radial-gradient(ellipse at 20% 10%, rgba(249,115,22,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.35) 0%, transparent 50%), linear-gradient(160deg, #fff7ed 0%, #fefce8 100%)",
         accent: "#8af27b",
       },
+      {
+        id: "space",
+        name: "Space",
+        heroHex: "1F680",
+        words: ["SUN", "MOON", "STAR", "UFO", "SKY", "ROCK", "BOT", "DISH", "ZOOM"],
+        cardBg: "linear-gradient(135deg, #312e81 0%, #7c3aed 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(79,70,229,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.35) 0%, transparent 50%), linear-gradient(160deg, #eef2ff 0%, #ede9fe 100%)",
+        accent: "#ffd85c",
+      },
+      {
+        id: "ocean",
+        name: "Ocean",
+        heroHex: "1F433",
+        words: ["FISH", "CRAB", "WAVE", "SEAL", "CLAM", "SAND", "BOAT", "SHIP", "REEF"],
+        cardBg: "linear-gradient(135deg, #0891b2 0%, #38bdf8 100%)",
+        worldBg: "radial-gradient(ellipse at 20% 10%, rgba(8,145,178,0.35) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(56,189,248,0.35) 0%, transparent 50%), linear-gradient(160deg, #ecfeff 0%, #e0f2fe 100%)",
+        accent: "#ff9f43",
+      },
     ];
 
     /*
@@ -2159,6 +2191,28 @@
         { requires: ["I", "SEE", "FROG"],            template: "I see a frog!" },
         { requires: ["THE", "DEER", "AND", "BIRD"],  template: "The deer and the bird!" },
         { requires: ["{name}", "AND", "THE", "OWL"], template: "{name} and the owl!" },
+      ],
+      space: [
+        { requires: ["I", "SEE", "STAR"],             template: "I see a star!" },
+        { requires: ["THE", "SUN", "IS", "UP"],       template: "The sun is up!" },
+        { requires: ["{name}", "ON", "MOON"],         template: "{name} is on the moon!" },
+        { requires: ["I", "SEE", "UFO"],              template: "I see a UFO!" },
+        { requires: ["GO", "TO", "THE", "MOON"],      template: "Go to the moon!" },
+        { requires: ["MY", "BOT"],                    template: "My bot!" },
+        { requires: ["SEE", "THE", "SKY"],            template: "See the sky!" },
+        { requires: ["{name}", "CAN", "ZOOM"],        template: "{name} can zoom!" },
+        { requires: ["THE", "ROCK", "AND", "STAR"],   template: "The rock and the star!" },
+      ],
+      ocean: [
+        { requires: ["I", "SEE", "FISH"],             template: "I see a fish!" },
+        { requires: ["MY", "CRAB"],                   template: "My crab!" },
+        { requires: ["SEE", "THE", "WAVE"],           template: "See the wave!" },
+        { requires: ["{name}", "ON", "BOAT"],         template: "{name} is on the boat!" },
+        { requires: ["I", "SEE", "SEAL"],             template: "I see a seal!" },
+        { requires: ["GO", "ON", "THE", "SHIP"],      template: "Go on the ship!" },
+        { requires: ["THE", "CRAB", "IS", "ON", "SAND"], template: "The crab is on the sand!" },
+        { requires: ["SEE", "THE", "REEF"],           template: "See the reef!" },
+        { requires: ["MY", "CLAM", "AND", "FISH"],    template: "My clam and my fish!" },
       ],
     };
 
@@ -2264,6 +2318,8 @@ ON`;
     // Convert ALL-CAPS word to Title Case so TTS pronounces it as a word, not an acronym
     function toSpeakable(word) {
       if (!word) return word;
+      // Initialisms the voice should spell out letter by letter
+      if (word.toUpperCase() === "UFO") return "U F O";
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     }
 
@@ -2290,6 +2346,9 @@ ON`;
           familyInput: familyInput.value,
           extraWords: wordInput.value,
           enabledThemes,
+          // Themes that existed when this save was written — themes added in
+          // later app updates default to ON instead of looking "toggled off"
+          knownThemes: THEMES.map(t => t.id),
         }));
       } catch (e) {}
     }
@@ -2302,11 +2361,14 @@ ON`;
         childNameInput.value = d.childName  || "";
         familyInput.value    = d.familyInput || "";
         wordInput.value      = d.extraWords  || "";
-        // Apply theme toggles (default all on if not saved)
+        // Apply theme toggles (default all on if not saved).
+        // A theme missing from enabledThemes only counts as "off" if it existed
+        // when the settings were saved (knownThemes) — otherwise it's new, default ON.
         const enabled = d.enabledThemes || THEMES.map(t => t.id);
+        const known = d.knownThemes || ["vehicles", "magic", "farm", "animals"];
         THEMES.forEach(t => {
           const el = document.getElementById("themeToggle_" + t.id);
-          if (el) el.checked = enabled.includes(t.id);
+          if (el) el.checked = enabled.includes(t.id) || !known.includes(t.id);
         });
         return true;
       } catch (e) { return false; }
@@ -2333,7 +2395,7 @@ ON`;
     }
 
     function themeEmoji(t) {
-      const map = { vehicles: "🚗", magic: "🪄", farm: "🐄", animals: "🦊" };
+      const map = { vehicles: "🚗", magic: "🪄", farm: "🐄", animals: "🦊", space: "🚀", ocean: "🐳" };
       return map[t.id] || "🌍";
     }
 
