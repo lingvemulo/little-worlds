@@ -11,7 +11,7 @@
   <title>Little Worlds</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 
   <style>
     /*
@@ -1759,6 +1759,14 @@
       100% { transform: scale(1)    rotate(0);      opacity: 1; }
     }
 
+    /* Display font for big celebratory text — Fredoka One is single-weight,
+       so weight is pinned to 400 to avoid faux-bold distortion */
+    h1, .reward-headline, .phrase-headline, .end-headline {
+      font-family: "Fredoka One", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
   </style>
 </head>
 
@@ -3041,7 +3049,7 @@ ON`;
 
     function showEndScreen() {
       makeConfetti();
-      speakOrBeep("win");
+      speakOrBeep("fanfare");
 
       // Detect if child has now completed the whole theme
       const theme = THEMES.find(t => t.id === currentThemeId);
@@ -3347,34 +3355,63 @@ ON`;
           audioContext.resume();
         }
 
-        if (type === "correct") playTone(640, 0.09, "sine");
-        if (type === "wrong") playTone(160, 0.12, "triangle");
-        if (type === "win") {
-          playTone(520, 0.12, "sine");
-          setTimeout(() => playTone(700, 0.12, "sine"), 120);
-          setTimeout(() => playTone(900, 0.18, "sine"), 240);
+        if (type === "correct") {
+          // Playful two-note pop; slight random pitch so repeats don't sound mechanical
+          const base = 620 + Math.random() * 60;
+          playNote(base, 0, 0.14, "sine", 0.09);
+          playNote(base * 1.5, 0.05, 0.12, "sine", 0.05);
         }
-        if (type === "start" || type === "prompt") playTone(420, 0.08, "sine");
+        if (type === "wrong") {
+          // Gentle falling third — a soft "hmm", not a buzzer
+          playNote(330, 0, 0.12, "sine", 0.06);
+          playNote(262, 0.1, 0.16, "sine", 0.06);
+        }
+        if (type === "win") {
+          // Little major arpeggio: C5 E5 G5 C6
+          [[523, 0], [659, 0.11], [784, 0.22], [1047, 0.34]].forEach(([freq, at], i) =>
+            playNote(freq, at, i === 3 ? 0.4 : 0.16, "triangle", 0.08));
+        }
+        if (type === "fanfare") {
+          // Bigger celebration for the end screen: arpeggio up, then a held chord
+          [[523, 0], [659, 0.12], [784, 0.24], [1047, 0.36]].forEach(([freq, at]) =>
+            playNote(freq, at, 0.18, "triangle", 0.08));
+          [523, 659, 784, 1047].forEach(freq =>
+            playNote(freq, 0.58, 0.8, "sine", 0.05));
+        }
+        if (type === "start" || type === "prompt") {
+          // Soft rising two-note chime
+          playNote(440, 0, 0.09, "sine", 0.06);
+          playNote(587, 0.08, 0.12, "sine", 0.06);
+        }
       } catch (error) {
         // Some browsers block audio until after user interaction.
         // The game still works perfectly without sound.
       }
     }
 
-    function playTone(frequency, duration, type) {
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
+    /*
+      One scheduled note with a soft attack/decay envelope, plus a quieter
+      octave harmonic for warmth. Timing uses the AudioContext clock
+      (startAt = seconds from now), not setTimeout, so melodies stay tight.
+    */
+    function playNote(frequency, startAt, duration, wave, volume) {
+      const t = audioContext.currentTime + startAt;
+      [[frequency, volume], [frequency * 2, volume * 0.28]].forEach(([freq, vol]) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
 
-      oscillator.type = type;
-      oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+        oscillator.type = wave;
+        oscillator.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
 
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
 
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + duration);
+        oscillator.start(t);
+        oscillator.stop(t + duration + 0.05);
+      });
     }
 
 
