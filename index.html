@@ -3363,6 +3363,39 @@ ON`;
     */
     let speechEnabled = false;
 
+    /*
+      VOICE SELECTION
+      ---------------
+      Browsers ship several voices but default to the most robotic one.
+      Rank what's actually installed and pick the most natural:
+      Edge "Natural" neural voices > Chrome "Google" voices >
+      Apple "Enhanced"/"Premium" downloads > Samantha > system default.
+      Voices load asynchronously, so re-pick on voiceschanged.
+    */
+    let chosenVoice = null;
+
+    function pickVoice() {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      const english = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+      const pool = english.length ? english : voices;
+      const score = v => {
+        const n = v.name.toLowerCase();
+        if (n.includes("natural")) return 5;
+        if (n.includes("google")) return 4;
+        if (n.includes("premium") || n.includes("enhanced")) return 3;
+        if (n.includes("samantha")) return 2;
+        if (v.default) return 1;
+        return 0;
+      };
+      chosenVoice = [...pool].sort((a, b) => score(b) - score(a))[0] || null;
+    }
+
+    if ("speechSynthesis" in window) {
+      pickVoice();
+      window.speechSynthesis.onvoiceschanged = pickVoice;
+    }
+
     function enableSpeech() {
       speechEnabled = true;
 
@@ -3381,8 +3414,9 @@ ON`;
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.86;
-        utterance.pitch = 1.18;
+        if (chosenVoice) utterance.voice = chosenVoice;
+        utterance.rate = 0.88;
+        utterance.pitch = 1.06;
         utterance.volume = 1;
 
         window.speechSynthesis.speak(utterance);
